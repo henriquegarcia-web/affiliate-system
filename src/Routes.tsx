@@ -19,8 +19,8 @@ const AppRoutes = () => {
       <Routes>
         {/* =============================================================== */}
 
-        <Route path="/" element={<SignInClientPage />} />
-        {/* <Route path="/*" element={<Navigate to="/" />} /> */}
+        <Route path="/" element={<Navigate to="/auth/entrar" />} />
+        <Route path="/*" element={<Navigate to="/auth/entrar" />} />
 
         {/* =============================================================== */}
 
