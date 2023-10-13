@@ -4,7 +4,7 @@ import { handleTranslateFbError } from '@/utils/functions/firebaseTranslateError
 
 import { message } from 'antd'
 
-import { AdminTheme, ISigninUser, ISignupUser, IUserData } from '@/@types/Auth'
+import { ISigninUser, ISignupUser, IUserData } from '@/@types/Auth'
 
 // ============================================== CREATE ADMIN DATA
 
@@ -86,34 +86,11 @@ const handleSignupAdmin = async ({
       })
 
       const adminData: IUserData = {
-        adminPreferences: {
-          adminTheme: 'default'
-        },
         adminId: userCredential.user.uid,
         adminName: adminName,
         adminEmail: adminEmail,
         adminPhone: adminPhone,
-        adminRegisteredAt: Date.now(),
-        adminCompanyInfo: {
-          companyActive: false,
-          companyActiveTestMode: false,
-          companyLogo: '',
-          companyBanner: '',
-          companyName: '',
-          companyId: '',
-          companyDescription: '',
-          // companyLocation: {},
-          companyContacts: {
-            companyPhone: '',
-            companyWhatsapp: '',
-            companyEmail: '',
-            companyFacebook: '',
-            companyInstagram: '',
-            companyWebsite: ''
-          },
-          // companySchedules: [],
-          companyMenu: []
-        }
+        adminRegisteredAt: Date.now()
       }
 
       const adminDataResponse = await createAdminAccount(adminData)
@@ -352,57 +329,6 @@ const handleChangePasswordAdmin = async (
   }
 }
 
-// ============================================== HANDLE EDIT PASSWORD
-
-const handleChangeAdminTheme = async (adminTheme: AdminTheme) => {
-  console.log(adminTheme)
-
-  try {
-    const user = firebase.auth().currentUser
-
-    if (!user?.email) {
-      message.open({
-        type: 'error',
-        content: 'Você precisa estar logado para alterar o tema.'
-      })
-      return false
-    }
-
-    const adminAccountsRef = firebase
-      .database()
-      .ref('adminAccounts/' + user.uid)
-
-    const adminDataSnapshot = await adminAccountsRef.get()
-
-    if (adminDataSnapshot.exists()) {
-      const adminData = adminDataSnapshot.val()
-      adminData.adminPreferences.adminTheme = adminTheme
-
-      await adminAccountsRef.set(adminData)
-
-      message.open({
-        type: 'success',
-        content: 'Tema atualizado com sucesso.'
-      })
-
-      return true
-    } else {
-      message.open({
-        type: 'error',
-        content: 'Dados não encontrados.'
-      })
-      return false
-    }
-  } catch (error) {
-    console.error('Erro ao editar o tema: ', error)
-    message.open({
-      type: 'error',
-      content: 'Falha ao editar o tema. Tente novamente mais tarde.'
-    })
-    return false
-  }
-}
-
 // -----------------------------------------------------------------
 
 export {
@@ -412,6 +338,5 @@ export {
   handleGetAdminData,
   handleDeleteAdminAccount,
   handleChangeEmailAdmin,
-  handleChangePasswordAdmin,
-  handleChangeAdminTheme
+  handleChangePasswordAdmin
 }

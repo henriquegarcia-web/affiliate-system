@@ -12,40 +12,31 @@ import React, {
 // import { message } from 'antd'
 
 import firebase from '@/firebase/firebase'
-import {
-  handleDeleteAdminAccount,
-  handleGetAdminData,
-  handleLogoutAdmin
-} from '@/firebase/auth'
+import { handleGetAdminData, handleLogoutAdmin } from '@/firebase/auth'
 
 import { IUserData } from '@/@types/Auth'
 
-interface AdminAuthContextData {
+interface ClientAuthContextData {
   userId: string | null
   userData: IUserData | null
-  isAdminLogged: boolean
-  isDeletingClientAccount: boolean
+  isClientLogged: boolean
 
   handleLogout: () => void
-  handleDeleteClientAccount: (adminPassword: string) => Promise<boolean>
 }
 
 // ===================================================================
 
-export const AdminAuthContext = createContext<AdminAuthContextData>(
-  {} as AdminAuthContextData
+export const ClientAuthContext = createContext<ClientAuthContextData>(
+  {} as ClientAuthContextData
 )
 
-const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
+const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
   // =================================================================
 
   const [userId, setUserId] = useState<string | null>(null)
   const [userData, setUserData] = useState<IUserData | null>(null)
 
-  const [isDeletingClientAccount, setIsDeletingClientAccount] =
-    useState<boolean>(false)
-
-  const isAdminLogged = useMemo(() => {
+  const isClientLogged = useMemo(() => {
     return !!userId
   }, [userId])
 
@@ -58,26 +49,6 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUserId(null)
     setUserData(null)
   }, [])
-
-  const handleDeleteClientAccount = useCallback(
-    async (adminPassword: string) => {
-      setIsDeletingClientAccount(true)
-
-      const deleteAccountResponse = await handleDeleteAdminAccount(
-        adminPassword
-      )
-
-      setIsDeletingClientAccount(false)
-
-      if (deleteAccountResponse) {
-        setUserId(null)
-        setUserData(null)
-        return true
-      }
-      return false
-    },
-    []
-  )
 
   // -----------------------------------------------------------------
 
@@ -113,42 +84,33 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
   // =================================================================
 
   // useEffect(() => {
-  //   console.log('LOGADO ======>', isAdminLogged, userId)
+  //   console.log('LOGADO ======>', isClientLogged, userId)
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [isAdminLogged])
+  // }, [isClientLogged])
 
-  const AdminAuthContextValues = useMemo(() => {
+  const ClientAuthContextValues = useMemo(() => {
     return {
       userId,
       userData,
-      isAdminLogged,
-      isDeletingClientAccount,
-      handleLogout,
-      handleDeleteClientAccount
+      isClientLogged,
+      handleLogout
     }
-  }, [
-    userId,
-    userData,
-    isAdminLogged,
-    isDeletingClientAccount,
-    handleLogout,
-    handleDeleteClientAccount
-  ])
+  }, [userId, userData, isClientLogged, handleLogout])
 
   return (
-    <AdminAuthContext.Provider value={AdminAuthContextValues}>
+    <ClientAuthContext.Provider value={ClientAuthContextValues}>
       {children}
-    </AdminAuthContext.Provider>
+    </ClientAuthContext.Provider>
   )
 }
 
-function useAdminAuth(): AdminAuthContextData {
-  const context = useContext(AdminAuthContext)
+function useClientAuth(): ClientAuthContextData {
+  const context = useContext(ClientAuthContext)
 
   if (!context)
-    throw new Error('useAdminAuth must be used within a UserProvider')
+    throw new Error('useClientAuth must be used within a UserProvider')
 
   return context
 }
 
-export { AdminAuthProvider, useAdminAuth }
+export { ClientAuthProvider, useClientAuth }

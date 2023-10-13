@@ -8,9 +8,11 @@ import {
 } from './pages'
 
 import { useAdminAuth } from './contexts/AdminAuthContext'
+import { useClientAuth } from './contexts/ClientAuthContext'
 
 const AppRoutes = () => {
   const { isAdminLogged } = useAdminAuth()
+  const { isClientLogged } = useClientAuth()
 
   return (
     <BrowserRouter>
@@ -25,9 +27,9 @@ const AppRoutes = () => {
         <Route
           path="/admin/entrar"
           element={
-            <PublicRoute isAuthenticated={isAdminLogged}>
+            <PublicAdminRoute isAuthenticated={isAdminLogged}>
               <SignInAdminPage />
-            </PublicRoute>
+            </PublicAdminRoute>
           }
         />
         <Route
@@ -44,17 +46,18 @@ const AppRoutes = () => {
         <Route
           path="/auth/entrar"
           element={
-            <PublicRoute isAuthenticated={isAdminLogged}>
+            <PublicClientRoute isAuthenticated={isClientLogged}>
               <SignInClientPage />
-            </PublicRoute>
+            </PublicClientRoute>
           }
         />
+        {/* <Route path="/auth" element={<Navigate to="/auth/entrar" />} /> */}
         <Route
           path="/dashboard"
           element={
-            <PrivateAdminRoute isAuthenticated={isAdminLogged}>
+            <PrivateClientRoute isAuthenticated={isClientLogged}>
               <DashboardClientPage />
-            </PrivateAdminRoute>
+            </PrivateClientRoute>
           }
         />
 
@@ -81,9 +84,25 @@ const PrivateAdminRoute = ({ isAuthenticated, children }: RouteProps) => {
   return children
 }
 
-const PublicRoute = ({ isAuthenticated, children }: RouteProps) => {
+const PublicAdminRoute = ({ isAuthenticated, children }: RouteProps) => {
   if (isAuthenticated) {
-    return <Navigate to="/admin/estabelecimento" />
+    return <Navigate to="/admin" />
+  }
+
+  return children
+}
+
+const PrivateClientRoute = ({ isAuthenticated, children }: RouteProps) => {
+  if (!isAuthenticated) {
+    return <Navigate to="/auth/entrar" replace />
+  }
+
+  return children
+}
+
+const PublicClientRoute = ({ isAuthenticated, children }: RouteProps) => {
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" />
   }
 
   return children
