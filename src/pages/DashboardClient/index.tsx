@@ -1,7 +1,15 @@
 import * as S from './styles'
 
+import { useClientAuth } from '@/contexts/ClientAuthContext'
+
 const DashboardClient = () => {
-  return <S.DashboardClient>DashboardClient</S.DashboardClient>
+  const { handleLogout } = useClientAuth()
+
+  return (
+    <S.DashboardClient>
+      <button onClick={handleLogout}>Sair</button>
+    </S.DashboardClient>
+  )
 }
 
 export default DashboardClient

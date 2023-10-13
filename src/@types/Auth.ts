@@ -3,21 +3,22 @@
 // ==================== INTERFACES =================== //
 
 export interface ISigninUser {
-  adminEmail: string
-  adminPassword: string
+  userEmail: string
+  userPassword: string
+  userAdmin: boolean
 }
 
 export interface ISignupUser {
-  adminName: string
-  adminEmail: string
-  adminPhone: string
-  adminPassword: string
+  userName: string
+  userEmail: string
+  userPassword: string
+  userIsAdmin: boolean
 }
 
 export interface IUserData {
-  adminId: string
-  adminName: string
-  adminEmail: string
-  adminPhone: string
-  adminRegisteredAt: number
+  userId: string
+  userName: string
+  userEmail: string
+  userRegisteredAt: number
+  userIsAdmin: boolean
 }

@@ -6,15 +6,44 @@ import { message } from 'antd'
 
 import { ISigninUser, ISignupUser, IUserData } from '@/@types/Auth'
 
+// ============================================== HANDLE GET USER DATA BY EMAIL
+
+const handleGetUserDataByEmail = async (userEmail: string) => {
+  try {
+    const userAccountsRef = firebase.database().ref('userAccounts')
+
+    const userQuery = userAccountsRef
+      .orderByChild('userEmail')
+      .equalTo(userEmail)
+    const userQuerySnapshot = await userQuery.get()
+
+    if (userQuerySnapshot.exists()) {
+      const userData = Object.values(userQuerySnapshot.val())[0]
+
+      return userData
+    } else {
+      message.open({
+        type: 'error',
+        content: 'Usuário não encontrado'
+      })
+
+      return null
+    }
+  } catch (error) {
+    console.error('Erro ao obter dados do usuário por email: ', error)
+    return null
+  }
+}
+
 // ============================================== CREATE ADMIN DATA
 
-const createAdminAccount = async (adminData: IUserData): Promise<boolean> => {
+const createUserAccount = async (userData: IUserData): Promise<boolean> => {
   try {
-    const adminAccountsRef = firebase
+    const userAccountsRef = firebase
       .database()
-      .ref('adminAccounts/' + adminData.adminId)
+      .ref('userAccounts/' + userData.userId)
 
-    await adminAccountsRef.set(adminData)
+    await userAccountsRef.set(userData)
 
     return true
   } catch (error) {
@@ -28,12 +57,32 @@ const createAdminAccount = async (adminData: IUserData): Promise<boolean> => {
 
 // ============================================== LOGIN
 
-const handleSigninAdmin = async ({
-  adminEmail,
-  adminPassword
+const handleSigninUser = async ({
+  userEmail,
+  userPassword,
+  userAdmin
 }: ISigninUser): Promise<boolean> => {
   try {
-    await firebase.auth().signInWithEmailAndPassword(adminEmail, adminPassword)
+    const emailValidation: any = await handleGetUserDataByEmail(userEmail)
+
+    if (userAdmin && !emailValidation.userIsAdmin) {
+      message.open({
+        type: 'warning',
+        content: 'Você não é administrador'
+      })
+      return false
+    }
+
+    if (!userAdmin && emailValidation.userIsAdmin) {
+      message.open({
+        type: 'warning',
+        content:
+          'Você é administrador, entre na página de login do administrador'
+      })
+      return false
+    }
+
+    await firebase.auth().signInWithEmailAndPassword(userEmail, userPassword)
 
     return true
   } catch (error: any) {
@@ -48,24 +97,24 @@ const handleSigninAdmin = async ({
   }
 }
 
-const handleSignupAdmin = async ({
-  adminName,
-  adminEmail,
-  adminPhone,
-  adminPassword
+const handleSignupUser = async ({
+  userName,
+  userEmail,
+  userPassword,
+  userIsAdmin = false
 }: ISignupUser): Promise<boolean | string> => {
   try {
     // ----------------------------------
 
-    const adminAccountsRef = firebase.database().ref('adminAccounts')
+    const userAccountsRef = firebase.database().ref('userAccounts')
 
-    const adminQuery = adminAccountsRef
-      .orderByChild('adminEmail')
-      .equalTo(adminEmail)
+    const userQuery = userAccountsRef
+      .orderByChild('userEmail')
+      .equalTo(userEmail)
 
-    const adminQuerySnapshot = await adminQuery.get()
+    const userQuerySnapshot = await userQuery.get()
 
-    if (adminQuerySnapshot.exists()) {
+    if (userQuerySnapshot.exists()) {
       message.open({
         type: 'warning',
         content:
@@ -78,24 +127,24 @@ const handleSignupAdmin = async ({
 
     const userCredential = await firebase
       .auth()
-      .createUserWithEmailAndPassword(adminEmail, adminPassword)
+      .createUserWithEmailAndPassword(userEmail, userPassword)
 
     if (userCredential.user) {
       await userCredential.user.updateProfile({
-        displayName: adminName
+        displayName: userName
       })
 
-      const adminData: IUserData = {
-        adminId: userCredential.user.uid,
-        adminName: adminName,
-        adminEmail: adminEmail,
-        adminPhone: adminPhone,
-        adminRegisteredAt: Date.now()
+      const userData: IUserData = {
+        userId: userCredential.user.uid,
+        userName: userName,
+        userEmail: userEmail,
+        userRegisteredAt: Date.now(),
+        userIsAdmin: userIsAdmin
       }
 
-      const adminDataResponse = await createAdminAccount(adminData)
+      const userDataResponse = await createUserAccount(userData)
 
-      if (!adminDataResponse) {
+      if (!userDataResponse) {
         message.open({
           type: 'error',
           content: 'Falha ao realizar cadastro, faça novamente o seu cadastro.'
@@ -130,7 +179,7 @@ const handleSignupAdmin = async ({
 
 // ============================================== LOGOUT
 
-const handleLogoutAdmin = async (): Promise<boolean> => {
+const handleLogoutUser = async (): Promise<boolean> => {
   try {
     await firebase.auth().signOut()
 
@@ -147,7 +196,7 @@ const handleLogoutAdmin = async (): Promise<boolean> => {
 
 // ============================================== HANDLE GET USER DATA
 
-const handleGetAdminData = (
+const handleGetUserData = (
   callback: (accountData: IUserData | null) => void
 ) => {
   const user = firebase.auth().currentUser
@@ -157,7 +206,7 @@ const handleGetAdminData = (
     return
   }
 
-  const adminsRef = firebase.database().ref('adminAccounts/' + user.uid)
+  const usersRef = firebase.database().ref('userAccounts/' + user.uid)
 
   const listener = (snapshot: any) => {
     try {
@@ -176,116 +225,72 @@ const handleGetAdminData = (
   }
 
   const offCallback = () => {
-    adminsRef.off('value', listener)
+    usersRef.off('value', listener)
   }
 
-  adminsRef.on('value', listener)
+  usersRef.on('value', listener)
 
   return offCallback
 }
 
 // ============================================== HANDLE DELETE ACCOUNT
 
-const handleDeleteAdminAccount = async (adminPassword: string) => {
-  try {
-    const user = firebase.auth().currentUser
+// const handleDeleteAdminAccount = async (adminPassword: string) => {
+//   try {
+//     const user = firebase.auth().currentUser
 
-    if (!user) {
-      message.open({
-        type: 'error',
-        content: 'Você precisa estar logado para excluir sua conta.'
-      })
-      return false
-    }
+//     if (!user) {
+//       message.open({
+//         type: 'error',
+//         content: 'Você precisa estar logado para excluir sua conta.'
+//       })
+//       return false
+//     }
 
-    try {
-      if (!user.email) {
-        message.open({
-          type: 'error',
-          content:
-            'Erro na reautenticação. Verifique sua senha e tente novamente.'
-        })
-        return false
-      }
+//     try {
+//       if (!user.email) {
+//         message.open({
+//           type: 'error',
+//           content:
+//             'Erro na reautenticação. Verifique sua senha e tente novamente.'
+//         })
+//         return false
+//       }
 
-      const credential = firebase.auth.EmailAuthProvider.credential(
-        user.email,
-        adminPassword
-      )
-      await user.reauthenticateWithCredential(credential)
-    } catch (reauthError) {
-      message.open({
-        type: 'error',
-        content:
-          'Erro na reautenticação. Verifique sua senha e tente novamente.'
-      })
-      return false
-    }
+//       const credential = firebase.auth.EmailAuthProvider.credential(
+//         user.email,
+//         adminPassword
+//       )
+//       await user.reauthenticateWithCredential(credential)
+//     } catch (reauthError) {
+//       message.open({
+//         type: 'error',
+//         content:
+//           'Erro na reautenticação. Verifique sua senha e tente novamente.'
+//       })
+//       return false
+//     }
 
-    await user.delete()
+//     await user.delete()
 
-    const adminsRef = firebase.database().ref('adminAccounts/' + user.uid)
-    await adminsRef.remove()
+//     const adminsRef = firebase.database().ref('adminAccounts/' + user.uid)
+//     await adminsRef.remove()
 
-    message.open({
-      type: 'success',
-      content: 'Sua conta foi excluída com sucesso.'
-    })
+//     message.open({
+//       type: 'success',
+//       content: 'Sua conta foi excluída com sucesso.'
+//     })
 
-    return true
-  } catch (error) {
-    console.error('Erro ao excluir a conta: ', error)
-    message.open({
-      type: 'error',
-      content: 'Falha ao excluir a conta. Tente novamente mais tarde.'
-    })
-    return false
-  }
-}
-
-// ============================================== HANDLE EDIT E-MAIL
-
-const handleChangeEmailAdmin = async (newEmail: string): Promise<boolean> => {
-  try {
-    const user = firebase.auth().currentUser
-
-    if (!user) {
-      message.open({
-        type: 'error',
-        content: 'Você precisa estar logado para alterar o e-mail.'
-      })
-      return false
-    }
-
-    await user.updateEmail(newEmail)
-    await user.sendEmailVerification()
-
-    await firebase.auth().signOut()
-
-    message.open({
-      type: 'success',
-      content: 'Um e-mail de verificação foi enviado para o novo endereço.'
-    })
-
-    return true
-  } catch (error: any) {
-    const errorCode = error.code
-
-    if (errorCode === 'auth/requires-recent-login') {
-      message.open({
-        type: 'error',
-        content: 'Você precisa fazer login novamente para alterar o e-mail.'
-      })
-    } else {
-      message.open({
-        type: 'error',
-        content: 'Erro ao alterar o e-mail: ' + error.message
-      })
-    }
-
-    return false
-  }
-}
+//     return true
+//   } catch (error) {
+//     console.error('Erro ao excluir a conta: ', error)
+//     message.open({
+//       type: 'error',
+//       content: 'Falha ao excluir a conta. Tente novamente mais tarde.'
+//     })
+//     return false
+//   }
+// }
 
 // ============================================== HANDLE EDIT PASSWORD
 
@@ -332,11 +337,10 @@ const handleChangePasswordAdmin = async (
 // -----------------------------------------------------------------
 
 export {
-  handleSigninAdmin,
-  handleSignupAdmin,
-  handleLogoutAdmin,
-  handleGetAdminData,
-  handleDeleteAdminAccount,
-  handleChangeEmailAdmin,
+  handleSigninUser,
+  handleSignupUser,
+  handleLogoutUser,
+  handleGetUserData,
+  handleGetUserDataByEmail,
   handleChangePasswordAdmin
 }

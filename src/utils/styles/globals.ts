@@ -75,7 +75,6 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
-
   .ant-form-item-explain-error {
     font-size: 12px !important;
     padding-top: 5px !important;

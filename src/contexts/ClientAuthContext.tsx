@@ -12,7 +12,7 @@ import React, {
 // import { message } from 'antd'
 
 import firebase from '@/firebase/firebase'
-import { handleGetAdminData, handleLogoutAdmin } from '@/firebase/auth'
+import { handleGetUserData, handleLogoutUser } from '@/firebase/auth'
 
 import { IUserData } from '@/@types/Auth'
 
@@ -43,7 +43,7 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
   // -----------------------------------------------------------------
 
   const handleLogout = useCallback(async () => {
-    const response = await handleLogoutAdmin()
+    const response = await handleLogoutUser()
     if (!response) return
 
     setUserId(null)
@@ -62,15 +62,15 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           setUserId(null)
           setUserData(null)
-          handleLogout()
+          // handleLogout()
         }
       })
 
     return () => unsubscribe()
-  }, [handleLogout])
+  }, [])
 
   useEffect(() => {
-    const unsubscribe = handleGetAdminData((accountData) => {
+    const unsubscribe = handleGetUserData((accountData) => {
       setUserData(accountData)
     })
 

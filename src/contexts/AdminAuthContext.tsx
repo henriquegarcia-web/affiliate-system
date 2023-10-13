@@ -13,9 +13,9 @@ import React, {
 
 import firebase from '@/firebase/firebase'
 import {
-  handleDeleteAdminAccount,
-  handleGetAdminData,
-  handleLogoutAdmin
+  // handleDeleteAdminAccount,
+  handleGetUserData,
+  handleLogoutUser
 } from '@/firebase/auth'
 
 import { IUserData } from '@/@types/Auth'
@@ -46,13 +46,15 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     useState<boolean>(false)
 
   const isAdminLogged = useMemo(() => {
-    return !!userId
-  }, [userId])
+    if (!userData) return false
+
+    return !!userId && userData.userIsAdmin
+  }, [userId, userData])
 
   // -----------------------------------------------------------------
 
   const handleLogout = useCallback(async () => {
-    const response = await handleLogoutAdmin()
+    const response = await handleLogoutUser()
     if (!response) return
 
     setUserId(null)
@@ -63,17 +65,17 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     async (adminPassword: string) => {
       setIsDeletingClientAccount(true)
 
-      const deleteAccountResponse = await handleDeleteAdminAccount(
-        adminPassword
-      )
+      // const deleteAccountResponse = await handleDeleteAdminAccount(
+      //   adminPassword
+      // )
 
       setIsDeletingClientAccount(false)
 
-      if (deleteAccountResponse) {
-        setUserId(null)
-        setUserData(null)
-        return true
-      }
+      // if (deleteAccountResponse) {
+      //   setUserId(null)
+      //   setUserData(null)
+      //   return true
+      // }
       return false
     },
     []
@@ -91,15 +93,15 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           setUserId(null)
           setUserData(null)
-          handleLogout()
+          // handleLogout()
         }
       })
 
     return () => unsubscribe()
-  }, [handleLogout])
+  }, [])
 
   useEffect(() => {
-    const unsubscribe = handleGetAdminData((accountData) => {
+    const unsubscribe = handleGetUserData((accountData) => {
       setUserData(accountData)
     })
 
