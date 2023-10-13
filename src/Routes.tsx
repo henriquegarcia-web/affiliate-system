@@ -20,7 +20,7 @@ const AppRoutes = () => {
         {/* =============================================================== */}
 
         <Route path="/" element={<SignInClientPage />} />
-        <Route path="/*" element={<Navigate to="/" />} />
+        {/* <Route path="/*" element={<Navigate to="/" />} /> */}
 
         {/* =============================================================== */}
 
