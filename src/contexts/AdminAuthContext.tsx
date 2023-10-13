@@ -13,6 +13,7 @@ import React, {
 
 import firebase from '@/firebase/firebase'
 import {
+  handleGetAllNonAdminUsers,
   // handleDeleteAdminAccount,
   handleGetUserData,
   handleLogoutUser
@@ -23,6 +24,7 @@ import { IUserData } from '@/@types/Auth'
 interface AdminAuthContextData {
   userId: string | null
   userData: IUserData | null
+  affiliatesList: IUserData[] | null
   isAdminLogged: boolean
   isDeletingClientAccount: boolean
 
@@ -41,6 +43,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [userId, setUserId] = useState<string | null>(null)
   const [userData, setUserData] = useState<IUserData | null>(null)
+
+  const [affiliatesList, setAffiliatesList] = useState<IUserData[] | null>(null)
 
   const [isDeletingClientAccount, setIsDeletingClientAccount] =
     useState<boolean>(false)
@@ -112,6 +116,20 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [userId])
 
+  // -----------------------------------------------------------------
+
+  useEffect(() => {
+    const unsubscribe = handleGetAllNonAdminUsers((affiliates) => {
+      setAffiliatesList(affiliates)
+    })
+
+    if (unsubscribe) {
+      return () => {
+        unsubscribe()
+      }
+    }
+  }, [])
+
   // =================================================================
 
   // useEffect(() => {
@@ -126,7 +144,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
       isAdminLogged,
       isDeletingClientAccount,
       handleLogout,
-      handleDeleteClientAccount
+      handleDeleteClientAccount,
+      affiliatesList
     }
   }, [
     userId,
@@ -134,7 +153,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     isAdminLogged,
     isDeletingClientAccount,
     handleLogout,
-    handleDeleteClientAccount
+    handleDeleteClientAccount,
+    affiliatesList
   ])
 
   return (

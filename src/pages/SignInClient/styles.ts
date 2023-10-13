@@ -61,6 +61,16 @@ export const SignInForm = styled.form`
   row-gap: 10px;
 `
 
+export const SignInFormChanger = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  column-gap: 6px;
+  margin-top: 5px;
+
+  font-size: 12px;
+`
+
 export const SignInFormFooter = styled.div`
   display: flex;
   justify-content: flex-end;

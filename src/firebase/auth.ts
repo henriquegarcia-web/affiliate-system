@@ -22,10 +22,10 @@ const handleGetUserDataByEmail = async (userEmail: string) => {
 
       return userData
     } else {
-      message.open({
-        type: 'error',
-        content: 'Usuário não encontrado'
-      })
+      // message.open({
+      //   type: 'error',
+      //   content: 'Usuário não encontrado'
+      // })
 
       return null
     }
@@ -37,13 +37,34 @@ const handleGetUserDataByEmail = async (userEmail: string) => {
 
 // ============================================== CREATE ADMIN DATA
 
-const createUserAccount = async (userData: IUserData): Promise<boolean> => {
+const handleCreateUserAccount = async (
+  userData: IUserData
+): Promise<boolean> => {
   try {
     const userAccountsRef = firebase
       .database()
       .ref('userAccounts/' + userData.userId)
 
+    const userQuery = userAccountsRef
+      .orderByChild('userEmail')
+      .equalTo(userData.userEmail)
+
+    const userQuerySnapshot = await userQuery.get()
+
+    if (userQuerySnapshot.exists()) {
+      message.open({
+        type: 'warning',
+        content: 'Já possuí um cadastro com essas credenciais'
+      })
+      return false
+    }
+
     await userAccountsRef.set(userData)
+
+    message.open({
+      type: 'success',
+      content: 'Cadastro de afialiado realizado com sucesso'
+    })
 
     return true
   } catch (error) {
@@ -87,21 +108,44 @@ const handleSigninUser = async ({
     return true
   } catch (error: any) {
     const errorCode = error.code
+
+    const userAccountsRef = firebase.database().ref('userAccounts')
+
+    const userQuery = userAccountsRef
+      .orderByChild('userEmail')
+      .equalTo(userEmail)
+
+    if (errorCode === 'auth/user-not-found') {
+      const userQuerySnapshot = await userQuery.get()
+
+      if (userQuerySnapshot.exists()) {
+        message.open({
+          type: 'warning',
+          content:
+            'Para acessar sua conta, cadastre uma senha em primeiro acesso'
+        })
+        return false
+      }
+
+      return false
+    }
+
     const traslatedError = handleTranslateFbError(errorCode)
+
+    console.log(traslatedError)
 
     message.open({
       type: 'error',
-      content: traslatedError
+      content:
+        traslatedError !== null ? traslatedError : 'Erro ao realizar login'
     })
     return false
   }
 }
 
 const handleSignupUser = async ({
-  userName,
   userEmail,
-  userPassword,
-  userIsAdmin = false
+  userPassword
 }: ISignupUser): Promise<boolean | string> => {
   try {
     // ----------------------------------
@@ -114,11 +158,10 @@ const handleSignupUser = async ({
 
     const userQuerySnapshot = await userQuery.get()
 
-    if (userQuerySnapshot.exists()) {
+    if (!userQuerySnapshot.exists()) {
       message.open({
         type: 'warning',
-        content:
-          'Essa conta já possuí cadastro, faça login para acessar o sistema'
+        content: 'Esse e-mail não está disponível para cadastro'
       })
       return false
     }
@@ -129,39 +172,18 @@ const handleSignupUser = async ({
       .auth()
       .createUserWithEmailAndPassword(userEmail, userPassword)
 
-    if (userCredential.user) {
-      await userCredential.user.updateProfile({
-        displayName: userName
-      })
+    // if (userCredential.user) {
+    //   const userId = userCredential.user.uid
 
-      const userData: IUserData = {
-        userId: userCredential.user.uid,
-        userName: userName,
-        userEmail: userEmail,
-        userRegisteredAt: Date.now(),
-        userIsAdmin: userIsAdmin
-      }
-
-      const userDataResponse = await createUserAccount(userData)
-
-      if (!userDataResponse) {
-        message.open({
-          type: 'error',
-          content: 'Falha ao realizar cadastro, faça novamente o seu cadastro.'
-        })
-
-        const user = firebase.auth().currentUser
-        if (user) {
-          await user.delete()
-        }
-
-        return false
-      }
-    }
+    //   const userDataToUpdate = {
+    //     userId: userId,
+    //     userIsAuthenticated: true
+    //   }
+    // }
 
     message.open({
       type: 'success',
-      content: 'Conta criada com sucesso'
+      content: 'Cadastro realizado com sucesso'
     })
     return true
   } catch (error: any) {
@@ -171,7 +193,8 @@ const handleSignupUser = async ({
 
     message.open({
       type: 'error',
-      content: traslatedError
+      content:
+        traslatedError !== null ? traslatedError : 'Erro ao realizar login'
     })
     return false
   }
@@ -229,6 +252,46 @@ const handleGetUserData = (
   }
 
   usersRef.on('value', listener)
+
+  return offCallback
+}
+
+// ==============================================
+
+const handleGetAllNonAdminUsers = (
+  callback: (usersData: IUserData[] | null) => void
+) => {
+  const userAccountsRef = firebase.database().ref('userAccounts')
+
+  const listener = (snapshot: any) => {
+    try {
+      if (snapshot && snapshot.exists()) {
+        const userData = snapshot.val()
+        const nonAdminUsers = []
+
+        for (const userId in userData) {
+          if (!userData[userId].userIsAdmin) {
+            nonAdminUsers.push(userData[userId])
+          }
+        }
+
+        callback(nonAdminUsers)
+      } else {
+        callback([])
+      }
+    } catch (error) {
+      message.open({
+        type: 'error',
+        content: 'Falha ao obter contas de usuário não administradores'
+      })
+    }
+  }
+
+  const offCallback = () => {
+    userAccountsRef.off('value', listener)
+  }
+
+  userAccountsRef.on('value', listener)
 
   return offCallback
 }
@@ -337,10 +400,12 @@ const handleChangePasswordAdmin = async (
 // -----------------------------------------------------------------
 
 export {
+  handleCreateUserAccount,
   handleSigninUser,
   handleSignupUser,
   handleLogoutUser,
   handleGetUserData,
   handleGetUserDataByEmail,
+  handleGetAllNonAdminUsers,
   handleChangePasswordAdmin
 }

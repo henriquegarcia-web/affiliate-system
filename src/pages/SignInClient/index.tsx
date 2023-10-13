@@ -3,14 +3,18 @@ import { useState } from 'react'
 
 import * as S from './styles'
 
-import { Button, Input, theme } from 'antd'
+import { Button, Checkbox, Input, theme } from 'antd'
 
 import { Controller, useForm } from 'react-hook-form'
 
-import { handleSigninUser, handleGetUserDataByEmail } from '@/firebase/auth'
+import { handleSigninUser, handleSignupUser } from '@/firebase/auth'
+
+import type { CheckboxChangeEvent } from 'antd/es/checkbox'
+
 interface ISigninForm {
   userEmail: string
   userPassword: string
+  userPasswordConfirm?: string
 }
 
 const SignInClient = () => {
@@ -19,6 +23,7 @@ const SignInClient = () => {
   const navigate = useNavigate()
 
   const [signinIsLoading, setSigninIsLoading] = useState(false)
+  const [isFirstAccess, setIsFirstAccess] = useState(false)
 
   const { control, handleSubmit, reset, formState } = useForm<ISigninForm>()
 
@@ -37,8 +42,27 @@ const SignInClient = () => {
 
     if (signupAdminResponse) {
       reset()
+    }
+  }
+
+  const handleSignup = async (data: ISigninForm) => {
+    setSigninIsLoading(true)
+
+    const signupAdminResponse = await handleSignupUser({
+      userEmail: data.userEmail,
+      userPassword: data.userPassword
+    })
+
+    setSigninIsLoading(false)
+
+    if (signupAdminResponse) {
+      reset()
       navigate('/dashboard')
     }
+  }
+
+  const onChange = (e: CheckboxChangeEvent) => {
+    setIsFirstAccess(e.target.checked)
   }
 
   return (
@@ -61,7 +85,13 @@ const SignInClient = () => {
             Entrar
           </S.SignInHeaderTitle>
         </S.SignInHeader>
-        <S.SignInForm onSubmit={handleSubmit(handleSignin)}>
+        <S.SignInForm
+          onSubmit={
+            isFirstAccess
+              ? handleSubmit(handleSignup)
+              : handleSubmit(handleSignin)
+          }
+        >
           <Controller
             name="userEmail"
             control={control}
@@ -76,6 +106,20 @@ const SignInClient = () => {
               <Input.Password {...field} placeholder="Senha" />
             )}
           />
+          {isFirstAccess && (
+            <Controller
+              name="userPasswordConfirm"
+              control={control}
+              rules={{ required: 'Este campo é obrigatório' }}
+              render={({ field }) => (
+                <Input.Password {...field} placeholder="Confirmar senha" />
+              )}
+            />
+          )}
+          <S.SignInFormChanger style={{ color: token.colorTextSecondary }}>
+            Primeiro acesso?
+            <Checkbox onChange={onChange}></Checkbox>
+          </S.SignInFormChanger>
           <S.SignInFormFooter>
             <Button
               type="primary"

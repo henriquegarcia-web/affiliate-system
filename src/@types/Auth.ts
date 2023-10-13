@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // ====================== TYPES ====================== //
 
 // ==================== INTERFACES =================== //
@@ -9,16 +10,17 @@ export interface ISigninUser {
 }
 
 export interface ISignupUser {
-  userName: string
   userEmail: string
   userPassword: string
-  userIsAdmin: boolean
 }
 
 export interface IUserData {
-  userId: string
+  userId?: string
   userName: string
   userEmail: string
   userRegisteredAt: number
   userIsAdmin: boolean
+  userIsAuthenticated: boolean
+  userAffiliateLinks?: any
+  userAffiliateComission?: any
 }

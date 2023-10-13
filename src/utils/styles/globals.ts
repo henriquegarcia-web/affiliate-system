@@ -7,8 +7,8 @@ export const responsiveDesktop = '1000px'
 export const responsiveTablet = '760px'
 export const responsiveMobile = '480px'
 
-export const adminMenuWidth = '260px'
-export const adminHeaderHeight = '45px'
+export const adminMenuWidth = '220px'
+export const adminHeaderHeight = '55px'
 export const adminViewHeader = '50px'
 export const landingHeaderHeight = '50px'
 
@@ -127,6 +127,30 @@ export const Window = styled.main`
 
 export const View = styled.section`
   display: flex;
+  flex-direction: column;
+  row-gap: 10px;
   width: 100%;
-  height: fit-content;
+  height: 100%;
+`
+
+export const ViewHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: ${adminHeaderHeight};
+  border-radius: 8px;
+  padding: 0 10px;
+`
+
+export const ViewContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  row-gap: 6px;
+  width: 100%;
+  /* height: calc(100% - ${adminHeaderHeight}); */
+  flex: 1;
+  border-radius: 8px;
+  padding: 10px;
 `
