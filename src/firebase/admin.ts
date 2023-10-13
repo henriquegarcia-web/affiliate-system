@@ -39,7 +39,7 @@ const handleAddLinks = async ({
       type: 'success',
       content: 'Erro ao adicionar um link para o afiliado'
     })
-    return FALSE
+    return false
   } catch (error: any) {
     message.open({
       type: 'error',
