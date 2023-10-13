@@ -3,7 +3,11 @@ import { useState } from 'react'
 
 import * as S from './styles'
 import * as G from '@/utils/styles/globals'
-import { IoSearchSharp, IoTrashBinOutline } from 'react-icons/io5'
+import {
+  IoSearchSharp,
+  IoTrashBinOutline,
+  IoCreateOutline
+} from 'react-icons/io5'
 
 import { Button, Form, Input, Modal, theme } from 'antd'
 
@@ -231,7 +235,54 @@ const UsersView = () => {
             backgroundColor: token.colorBgContainer,
             border: `1px solid ${token.colorBorderSecondary}`
           }}
-        ></S.LinksList>
+        >
+          <S.Link
+            style={{
+              backgroundColor: token.colorBgElevated,
+              border: `1px solid ${token.colorBorderSecondary}`,
+              color: token.colorTextSecondary
+            }}
+          >
+            <Button type="primary" size="small">
+              Ver Link
+            </Button>
+            <p>Link da Homepage</p>
+
+            <span>
+              <Button
+                size="small"
+                icon={
+                  <IoCreateOutline
+                    style={{ fontSize: 16, marginLeft: '4px' }}
+                  />
+                }
+              />
+            </span>
+          </S.Link>
+          <S.Link
+            style={{
+              backgroundColor: token.colorBgElevated,
+              border: `1px solid ${token.colorBorderSecondary}`,
+              color: token.colorTextSecondary
+            }}
+          >
+            <Button type="primary" size="small">
+              Ver Link
+            </Button>
+            <p>Link do Cassino Homepage</p>
+
+            <span>
+              <Button
+                size="small"
+                icon={
+                  <IoCreateOutline
+                    style={{ fontSize: 16, marginLeft: '4px' }}
+                  />
+                }
+              />
+            </span>
+          </S.Link>
+        </S.LinksList>
         <S.LinksFormCreation onSubmit={handleSubmitLinks(handleCreateLink)}>
           <Controller
             name="linkUrl"

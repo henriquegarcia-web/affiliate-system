@@ -103,7 +103,11 @@ const handleSigninUser = async ({
       return false
     }
 
-    await firebase.auth().signInWithEmailAndPassword(userEmail, userPassword)
+    const response = await firebase
+      .auth()
+      .signInWithEmailAndPassword(userEmail, userPassword)
+
+    console.log(response.user.uid)
 
     return true
   } catch (error: any) {
@@ -171,6 +175,8 @@ const handleSignupUser = async ({
     const userCredential = await firebase
       .auth()
       .createUserWithEmailAndPassword(userEmail, userPassword)
+
+    console.log(userCredential.user.uid)
 
     // if (userCredential.user) {
     //   const userId = userCredential.user.uid
