@@ -1,3 +1,4 @@
+import { responsiveTablet } from '@/utils/styles/globals'
 import styled from 'styled-components'
 
 export const HomeView = styled.main`
@@ -9,11 +10,20 @@ export const HomeView = styled.main`
 
 export const AnalyticWrapper = styled.div`
   display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+`
+
+export const AnalyticWrapperScroll = styled.div`
+  display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
   align-content: flex-start;
+  width: 100%;
+  height: fit-content;
   gap: 15px;
-  padding: 10px;
+  padding-bottom: 10px;
 `
 
 export const AnalyticContainer = styled.div`
@@ -21,6 +31,10 @@ export const AnalyticContainer = styled.div`
   flex-direction: column;
   row-gap: 10px;
   width: calc(50% - 7.5px);
+
+  @media screen and (max-width: ${responsiveTablet}) {
+    width: 100%;
+  }
 `
 
 export const AnalyticHeader = styled.div`

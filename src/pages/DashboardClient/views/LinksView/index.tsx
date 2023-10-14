@@ -18,13 +18,15 @@ const LinksView = () => {
             border: `1px solid ${token.colorBorderSecondary}`
           }}
         >
-          <Input
-            style={{ width: '100%', maxWidth: '280px' }}
-            addonAfter={
-              <IoSearchSharp style={{ fontSize: 16, marginBottom: '-3px' }} />
-            }
-            placeholder="Pesquise aqui..."
-          />
+          <S.SearchInput>
+            <Input
+              style={{ width: '100%' }}
+              addonAfter={
+                <IoSearchSharp style={{ fontSize: 16, marginBottom: '-3px' }} />
+              }
+              placeholder="Pesquise aqui..."
+            />
+          </S.SearchInput>
         </G.ViewHeader>
         <G.ViewContent
           style={{

@@ -1,3 +1,4 @@
+import { responsiveMobile } from '@/utils/styles/globals'
 import styled from 'styled-components'
 
 const linkWrapperHeader = '20px'
@@ -7,6 +8,16 @@ export const LinksView = styled.main`
   width: 100%;
   height: 100%;
   padding: 10px;
+`
+
+export const SearchInput = styled.div`
+  display: flex;
+  width: 100%;
+  max-width: 280px;
+
+  @media screen and (max-width: ${responsiveMobile}) {
+    max-width: 100%;
+  }
 `
 
 export const LinkWrapper = styled.div`
@@ -34,7 +45,7 @@ export const LinkWrapperHeader = styled.div`
 export const LinkWrapperContent = styled.div`
   display: flex;
   flex-direction: column;
-  row-gap: 6px;
+  row-gap: 8px;
   width: 100%;
   height: calc(100% - ${linkWrapperHeader});
 `

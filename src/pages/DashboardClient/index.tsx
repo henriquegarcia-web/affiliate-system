@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
 import * as S from './styles'
+
+import { IoMenu, IoClose } from 'react-icons/io5'
 
 import {
   Avatar,
@@ -20,6 +22,7 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { formatUsername } from '@/utils/functions/formatUsername'
 import { useClientAuth } from '@/contexts/ClientAuthContext'
+import useClickOutside from '@/hooks/useClickOutside'
 
 import { IMenuData, adminMenuData, privateAdminMenuData } from '@/data/menu'
 import type { MenuProps } from 'antd'
@@ -27,9 +30,25 @@ import type { MenuProps } from 'antd'
 const DashboardClient = () => {
   const { token } = theme.useToken()
 
-  const { userData } = useClientAuth()
+  const { handleLogout, userData } = useClientAuth()
 
   const [menuId, setMenuId] = useState(adminMenuData[0].menuId)
+  const [isMenuMobileOpen, setIsMenuMobileOpen] = useState(false)
+
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
+  const [isWithdrawHistoricModalOpen, setIsWithdrawHistoricModalOpen] =
+    useState(false)
+
+  const showWithdrawModal = () => setIsWithdrawModalOpen(true)
+  const handleWithdrawModalClose = () => setIsWithdrawModalOpen(false)
+
+  const showWithdrawHistoricModal = () => setIsWithdrawHistoricModalOpen(true)
+  const handleWithdrawHistoricModalClose = () =>
+    setIsWithdrawHistoricModalOpen(false)
+
+  const toggleMenuMobile = () => setIsMenuMobileOpen(!isMenuMobileOpen)
+
+  const menuMobileRef = useRef(null)
 
   const viewToRender = useMemo(() => {
     const activeMenuItem = adminMenuData.find(
@@ -42,6 +61,12 @@ const DashboardClient = () => {
       <>View naão encontrada</>
     )
   }, [menuId])
+
+  useClickOutside({
+    active: isMenuMobileOpen,
+    containerRef: menuMobileRef,
+    onClickOutside: () => setIsMenuMobileOpen(false)
+  })
 
   return (
     <S.DashboardClient
@@ -68,8 +93,8 @@ const DashboardClient = () => {
               color: token.colorText
             }}
           >
-            <b style={{ color: token.colorPrimary }}>{userData.userName}</b>
-            <p>{userData.userEmail}</p>
+            <b style={{ color: token.colorPrimary }}>{userData?.userName}</b>
+            <p>{userData?.userEmail}</p>
             <span>
               <p>Seu acordo:</p> <b>CPA R$ 60</b>
             </span>
@@ -103,7 +128,88 @@ const DashboardClient = () => {
             borderBottom: `1px solid ${token.colorBorderSecondary}`
           }}
         >
-          <UserMenu />
+          <S.DashboardMenuLogoMobile
+            style={{
+              backgroundColor: token.colorBgLayout,
+              borderBottom: `1px solid ${token.colorBorderSecondary}`
+            }}
+          >
+            <img src="/logo_full.png" alt="" />
+          </S.DashboardMenuLogoMobile>
+          <UserMenu
+            isWithdrawModalOpen={isWithdrawModalOpen}
+            showWithdrawModal={showWithdrawModal}
+            handleWithdrawModalClose={handleWithdrawModalClose}
+            isWithdrawHistoricModalOpen={isWithdrawHistoricModalOpen}
+            showWithdrawHistoricModal={showWithdrawHistoricModal}
+            handleWithdrawHistoricModalClose={handleWithdrawHistoricModalClose}
+          />
+          <S.MenuMobileToggle
+            style={{ color: token.colorText }}
+            onClick={toggleMenuMobile}
+          >
+            {isMenuMobileOpen ? <IoClose /> : <IoMenu />}
+          </S.MenuMobileToggle>
+          <S.MenuMobile
+            ref={menuMobileRef}
+            style={{ backgroundColor: token.colorBgElevated }}
+            open={isMenuMobileOpen ? 1 : 0}
+          >
+            <UserMenu
+              isWithdrawModalOpen={isWithdrawModalOpen}
+              showWithdrawModal={showWithdrawModal}
+              handleWithdrawModalClose={handleWithdrawModalClose}
+              isWithdrawHistoricModalOpen={isWithdrawHistoricModalOpen}
+              showWithdrawHistoricModal={showWithdrawHistoricModal}
+              handleWithdrawHistoricModalClose={
+                handleWithdrawHistoricModalClose
+              }
+              mobile
+            />
+            <S.DashboardMenuUserInfos
+              style={{
+                color: token.colorText
+              }}
+            >
+              <b style={{ color: token.colorPrimary }}>{userData?.userName}</b>
+              <p>{userData?.userEmail}</p>
+              <span>
+                <p>Seu acordo:</p> <b>CPA R$ 60</b>
+              </span>
+            </S.DashboardMenuUserInfos>
+            <S.MainMenu>
+              {adminMenuData.map((menu: IMenuData) => {
+                const buttonType =
+                  menu.menuId === menuId ? 'primary' : 'default'
+                return (
+                  <Button
+                    key={menu.menuId}
+                    type={buttonType}
+                    icon={menu.menuIcon}
+                    onClick={() => {
+                      setMenuId(menu.menuId)
+                      setIsMenuMobileOpen(false)
+                    }}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'flex-start',
+                      alignItems: 'center',
+                      fontSize: 13
+                    }}
+                  >
+                    {menu.menuLabel}
+                  </Button>
+                )
+              })}
+            </S.MainMenu>
+            <S.BottomMenu>
+              <Button onClick={showWithdrawModal}>Solicitar saque</Button>
+              <Button onClick={showWithdrawModal}>Histórico de saques</Button>
+              <Button danger style={{ width: '100%' }} onClick={handleLogout}>
+                Sair
+              </Button>
+            </S.BottomMenu>
+          </S.MenuMobile>
         </S.DashboardViewHeader>
         <S.DashboardViewWrapper>{viewToRender}</S.DashboardViewWrapper>
       </S.DashboardView>
@@ -115,24 +221,29 @@ export default DashboardClient
 
 // ===============================================
 
-interface IUserMenu {}
+interface IUserMenu {
+  isWithdrawModalOpen: boolean
+  showWithdrawModal: () => void
+  handleWithdrawModalClose: () => void
+  isWithdrawHistoricModalOpen: boolean
+  showWithdrawHistoricModal: () => void
+  handleWithdrawHistoricModalClose: () => void
+  mobile?: boolean
+}
 
-const UserMenu = ({}: IUserMenu) => {
+const UserMenu = ({
+  isWithdrawModalOpen,
+  showWithdrawModal,
+  handleWithdrawModalClose,
+  isWithdrawHistoricModalOpen,
+  showWithdrawHistoricModal,
+  handleWithdrawHistoricModalClose,
+  mobile = false
+}: IUserMenu) => {
   const { token } = theme.useToken()
 
   const navigate = useNavigate()
   const { handleLogout, userData } = useClientAuth()
-
-  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
-  const [isWithdrawHistoricModalOpen, setIsWithdrawHistoricModalOpen] =
-    useState(false)
-
-  const showWithdrawModal = () => setIsWithdrawModalOpen(true)
-  const handleWithdrawModalClose = () => setIsWithdrawModalOpen(false)
-
-  const showWithdrawHistoricModal = () => setIsWithdrawHistoricModalOpen(true)
-  const handleWithdrawHistoricModalClose = () =>
-    setIsWithdrawHistoricModalOpen(false)
 
   // -----------------------------------------------------
 
@@ -149,6 +260,40 @@ const UserMenu = ({}: IUserMenu) => {
 
     return transformedMenus
   }, [])
+
+  if (mobile)
+    return (
+      <S.UserMenuMobile>
+        <S.UserMenuBalance style={{ color: token.colorText }}>
+          R$ 1.500,00
+        </S.UserMenuBalance>
+
+        <S.UserMenuMobileWrapper
+          style={{
+            backgroundColor: token.colorBgContainer,
+            border: `1px solid ${token.colorBorderSecondary}`
+          }}
+        >
+          <S.UserMenuName style={{ color: token.colorText }}>
+            {!userData ? 'Carregando...' : userData?.userName}
+          </S.UserMenuName>
+          <Avatar
+            size={28}
+            style={{
+              fontSize: 12,
+              backgroundColor: '#fde3cf',
+              color: '#f56a00'
+            }}
+          >
+            {!userData ? (
+              <Spin size="small" style={{ marginTop: '-4px' }} />
+            ) : (
+              formatUsername(userData?.userName)
+            )}
+          </Avatar>
+        </S.UserMenuMobileWrapper>
+      </S.UserMenuMobile>
+    )
 
   return (
     <S.HeaderUserMenu>
