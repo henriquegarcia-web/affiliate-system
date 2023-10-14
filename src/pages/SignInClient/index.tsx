@@ -34,8 +34,7 @@ const SignInClient = () => {
 
     const signupAdminResponse = await handleSigninUser({
       userEmail: data.userEmail,
-      userPassword: data.userPassword,
-      userAdmin: false
+      userPassword: data.userPassword
     })
 
     setSigninIsLoading(false)

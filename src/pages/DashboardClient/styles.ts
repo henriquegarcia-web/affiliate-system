@@ -70,6 +70,10 @@ export const DashboardMenuWrapper = styled.div`
   width: 100%;
   height: calc(100% - ${adminViewHeader});
   padding: 15px;
+
+  svg {
+    font-size: 15px;
+  }
 `
 
 export const DashboardMenuUserInfos = styled.div`
@@ -84,16 +88,6 @@ export const DashboardMenuUserInfos = styled.div`
 
   background-color: rgba(112, 220, 73, 0.1);
   border: 1px solid rgba(112, 220, 73, 0.4);
-
-  b {
-    font-size: 13px;
-    line-height: 13px;
-  }
-
-  p {
-    font-size: 13px;
-    line-height: 13px;
-  }
 
   span {
     display: flex;
@@ -126,6 +120,24 @@ export const DashboardMenuUserInfos = styled.div`
       border: 1px solid rgba(112, 220, 73, 0.6);
     }
   }
+`
+
+export const UserInfosName = styled.b`
+  font-size: 13px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+`
+
+export const UserInfosEmail = styled.p`
+  font-size: 13px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 `
 
 export const DashboardView = styled.div`

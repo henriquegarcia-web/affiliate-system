@@ -4,67 +4,22 @@ import { handleTranslateFbError } from '@/utils/functions/firebaseTranslateError
 
 import { message } from 'antd'
 
-import { ISigninUser, ISignupUser, IUserData } from '@/@types/Auth'
+import {
+  ISigninUser,
+  ISignupUser,
+  ISigninAdmin,
+  IUserData
+} from '@/@types/Auth'
 
-// ============================================== HANDLE GET USER DATA BY EMAIL
+// ============================================== CREATE USER DATA
 
-const handleGetUserDataByEmail = async (userEmail: string) => {
-  try {
-    const userAccountsRef = firebase.database().ref('userAccounts')
-
-    const userQuery = userAccountsRef
-      .orderByChild('userEmail')
-      .equalTo(userEmail)
-    const userQuerySnapshot = await userQuery.get()
-
-    if (userQuerySnapshot.exists()) {
-      const userData = Object.values(userQuerySnapshot.val())[0]
-
-      return userData
-    } else {
-      // message.open({
-      //   type: 'error',
-      //   content: 'Usuário não encontrado'
-      // })
-
-      return null
-    }
-  } catch (error) {
-    console.error('Erro ao obter dados do usuário por email: ', error)
-    return null
-  }
-}
-
-// ============================================== CREATE ADMIN DATA
-
-const handleCreateUserAccount = async (
-  userData: IUserData
-): Promise<boolean> => {
+const createUserAccount = async (userData: IUserData): Promise<boolean> => {
   try {
     const userAccountsRef = firebase
       .database()
       .ref('userAccounts/' + userData.userId)
 
-    const userQuery = userAccountsRef
-      .orderByChild('userEmail')
-      .equalTo(userData.userEmail)
-
-    const userQuerySnapshot = await userQuery.get()
-
-    if (userQuerySnapshot.exists()) {
-      message.open({
-        type: 'warning',
-        content: 'Já possuí um cadastro com essas credenciais'
-      })
-      return false
-    }
-
     await userAccountsRef.set(userData)
-
-    message.open({
-      type: 'success',
-      content: 'Cadastro de afialiado realizado com sucesso'
-    })
 
     return true
   } catch (error) {
@@ -76,76 +31,45 @@ const handleCreateUserAccount = async (
   }
 }
 
-// ============================================== LOGIN
+// ============================================== LOGIN USER
 
 const handleSigninUser = async ({
   userEmail,
-  userPassword,
-  userAdmin
+  userPassword
 }: ISigninUser): Promise<boolean> => {
   try {
-    const emailValidation: any = await handleGetUserDataByEmail(userEmail)
-
-    if (userAdmin && !emailValidation.userIsAdmin) {
-      message.open({
-        type: 'warning',
-        content: 'Você não é administrador'
-      })
-      return false
-    }
-
-    if (!userAdmin && emailValidation.userIsAdmin) {
-      message.open({
-        type: 'warning',
-        content:
-          'Você é administrador, entre na página de login do administrador'
-      })
-      return false
-    }
-
-    const response = await firebase
-      .auth()
-      .signInWithEmailAndPassword(userEmail, userPassword)
-
-    console.log(response.user.uid)
+    await firebase.auth().signInWithEmailAndPassword(userEmail, userPassword)
 
     return true
   } catch (error: any) {
     const errorCode = error.code
 
-    const userAccountsRef = firebase.database().ref('userAccounts')
+    const userAccountsRef = firebase.database().ref('authenticatedUsers')
 
     const userQuery = userAccountsRef
       .orderByChild('userEmail')
       .equalTo(userEmail)
 
-    if (errorCode === 'auth/user-not-found') {
-      const userQuerySnapshot = await userQuery.get()
+    const userQuerySnapshot = await userQuery.get()
 
-      if (userQuerySnapshot.exists()) {
-        message.open({
-          type: 'warning',
-          content:
-            'Para acessar sua conta, cadastre uma senha em primeiro acesso'
-        })
-        return false
-      }
-
+    if (userQuerySnapshot.exists()) {
+      message.open({
+        type: 'warning',
+        content: 'Para acessar sua conta, cadastre uma senha em primeiro acesso'
+      })
       return false
     }
 
-    const traslatedError = handleTranslateFbError(errorCode)
-
-    console.log(traslatedError)
-
     message.open({
       type: 'error',
-      content:
-        traslatedError !== null ? traslatedError : 'Erro ao realizar login'
+      content: 'Você não possuí o acesso liberado à plataforma'
     })
+
     return false
   }
 }
+
+// ============================================== REGISTER USER
 
 const handleSignupUser = async ({
   userEmail,
@@ -154,18 +78,46 @@ const handleSignupUser = async ({
   try {
     // ----------------------------------
 
-    const userAccountsRef = firebase.database().ref('userAccounts')
+    const authenticatedUsersRef = firebase.database().ref('authenticatedUsers')
+    const userAccountsRef = firebase.database().ref('authenticatedUsers')
 
-    const userQuery = userAccountsRef
+    const userAuthenticationQuery = authenticatedUsersRef
       .orderByChild('userEmail')
       .equalTo(userEmail)
 
+    const userQuery = userAccountsRef
+      .orderByChild('adminEmail')
+      .equalTo(userEmail)
+
+    const userAuthenticationQuerySnapshot = await userAuthenticationQuery.get()
     const userQuerySnapshot = await userQuery.get()
 
-    if (!userQuerySnapshot.exists()) {
+    if (!userAuthenticationQuerySnapshot.exists()) {
       message.open({
         type: 'warning',
         content: 'Esse e-mail não está disponível para cadastro'
+      })
+      return false
+    }
+
+    if (userQuerySnapshot.exists()) {
+      message.open({
+        type: 'warning',
+        content:
+          'Essa conta já possuí cadastro, faça login para acessar o sistema'
+      })
+      return false
+    }
+
+    const userAuthenticatedData = userAuthenticationQuerySnapshot.val()
+    const userId = Object.keys(userAuthenticatedData)[0]
+
+    const { userName } = userAuthenticatedData[userId]
+
+    if (!userName) {
+      message.open({
+        type: 'error',
+        content: 'Erro ao realizar cadastro'
       })
       return false
     }
@@ -176,25 +128,74 @@ const handleSignupUser = async ({
       .auth()
       .createUserWithEmailAndPassword(userEmail, userPassword)
 
-    console.log(userCredential.user.uid)
+    if (userCredential.user) {
+      await userCredential.user.updateProfile({
+        displayName: userName
+      })
 
-    // if (userCredential.user) {
-    //   const userId = userCredential.user.uid
+      const userData: IUserData = {
+        userId: userCredential.user.uid,
+        userName: userName,
+        userEmail: userEmail,
+        userRegisteredAt: Date.now(),
+        userAffiliateLinks: [],
+        userAffiliateComission: []
+      }
 
-    //   const userDataToUpdate = {
-    //     userId: userId,
-    //     userIsAuthenticated: true
-    //   }
-    // }
+      const userDataResponse = await createUserAccount(userData)
+
+      if (!userDataResponse) {
+        message.open({
+          type: 'error',
+          content: 'Falha ao realizar cadastro, faça novamente o seu cadastro.'
+        })
+
+        const user = firebase.auth().currentUser
+        if (user) {
+          await user.delete()
+        }
+
+        return false
+      }
+
+      message.open({
+        type: 'success',
+        content: 'Conta criada com sucesso'
+      })
+      return true
+    }
 
     message.open({
-      type: 'success',
-      content: 'Cadastro realizado com sucesso'
+      type: 'error',
+      content: 'Erro ao realizar cadastro'
     })
-    return true
+    return false
   } catch (error: any) {
     const errorCode = error.code
 
+    const traslatedError = handleTranslateFbError(errorCode)
+
+    message.open({
+      type: 'error',
+      content:
+        traslatedError !== null ? traslatedError : 'Erro ao realizar cadastro'
+    })
+    return false
+  }
+}
+
+// ============================================== LOGIN ADMIN
+
+const handleSigninAdmin = async ({
+  adminEmail,
+  adminPassword
+}: ISigninAdmin): Promise<boolean> => {
+  try {
+    await firebase.auth().signInWithEmailAndPassword(adminEmail, adminPassword)
+
+    return true
+  } catch (error: any) {
+    const errorCode = error.code
     const traslatedError = handleTranslateFbError(errorCode)
 
     message.open({
@@ -248,7 +249,46 @@ const handleGetUserData = (
     } catch (error) {
       message.open({
         type: 'error',
-        content: 'Falha ao obter dados da empresa'
+        content: 'Falha ao obter dados do usuário'
+      })
+    }
+  }
+
+  const offCallback = () => {
+    usersRef.off('value', listener)
+  }
+
+  usersRef.on('value', listener)
+
+  return offCallback
+}
+
+// ============================================== HANDLE GET USER DATA
+
+const handleGetAdminData = (
+  callback: (accountData: IUserData | null) => void
+) => {
+  const user = firebase.auth().currentUser
+
+  if (!user) {
+    callback(null)
+    return
+  }
+
+  const usersRef = firebase.database().ref('adminAccounts/' + user.uid)
+
+  const listener = (snapshot: any) => {
+    try {
+      if (snapshot && snapshot.exists()) {
+        const companyData = snapshot.val()
+        callback(companyData)
+      } else {
+        callback(null)
+      }
+    } catch (error) {
+      message.open({
+        type: 'error',
+        content: 'Falha ao obter dados do usuário'
       })
     }
   }
@@ -263,44 +303,6 @@ const handleGetUserData = (
 }
 
 // ==============================================
-
-const handleGetAllNonAdminUsers = (
-  callback: (usersData: IUserData[] | null) => void
-) => {
-  const userAccountsRef = firebase.database().ref('userAccounts')
-
-  const listener = (snapshot: any) => {
-    try {
-      if (snapshot && snapshot.exists()) {
-        const userData = snapshot.val()
-        const nonAdminUsers = []
-
-        for (const userId in userData) {
-          if (!userData[userId].userIsAdmin) {
-            nonAdminUsers.push(userData[userId])
-          }
-        }
-
-        callback(nonAdminUsers)
-      } else {
-        callback([])
-      }
-    } catch (error) {
-      message.open({
-        type: 'error',
-        content: 'Falha ao obter contas de usuário não administradores'
-      })
-    }
-  }
-
-  const offCallback = () => {
-    userAccountsRef.off('value', listener)
-  }
-
-  userAccountsRef.on('value', listener)
-
-  return offCallback
-}
 
 // ============================================== HANDLE DELETE ACCOUNT
 
@@ -406,12 +408,11 @@ const handleChangePasswordAdmin = async (
 // -----------------------------------------------------------------
 
 export {
-  handleCreateUserAccount,
   handleSigninUser,
   handleSignupUser,
+  handleSigninAdmin,
   handleLogoutUser,
   handleGetUserData,
-  handleGetUserDataByEmail,
-  handleGetAllNonAdminUsers,
+  handleGetAdminData,
   handleChangePasswordAdmin
 }

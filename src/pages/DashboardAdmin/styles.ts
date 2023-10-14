@@ -44,6 +44,10 @@ export const DashboardMenuWrapper = styled.div`
   width: 100%;
   height: calc(100% - ${adminViewHeader});
   padding: 15px;
+
+  svg {
+    font-size: 15px;
+  }
 `
 
 export const DashboardView = styled.div`

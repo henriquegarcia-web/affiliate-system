@@ -6,7 +6,6 @@
 export interface ISigninUser {
   userEmail: string
   userPassword: string
-  userAdmin: boolean
 }
 
 export interface ISignupUser {
@@ -14,13 +13,16 @@ export interface ISignupUser {
   userPassword: string
 }
 
+export interface ISigninAdmin {
+  adminEmail: string
+  adminPassword: string
+}
+
 export interface IUserData {
-  userId?: string
+  userId: string
   userName: string
   userEmail: string
   userRegisteredAt: number
-  userIsAdmin: boolean
-  userIsAuthenticated: boolean
   userAffiliateLinks?: any
   userAffiliateComission?: any
 }

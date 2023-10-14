@@ -74,7 +74,14 @@ const DashboardAdmin = () => {
               <Button
                 key={menu.menuId}
                 type={buttonType}
+                icon={menu.menuIcon}
                 onClick={() => setMenuId(menu.menuId)}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  fontSize: 13
+                }}
               >
                 {menu.menuLabel}
               </Button>

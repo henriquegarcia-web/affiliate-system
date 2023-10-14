@@ -7,7 +7,7 @@ import { Button, Input, theme } from 'antd'
 
 import { Controller, useForm } from 'react-hook-form'
 
-import { handleSigninUser } from '@/firebase/auth'
+import { handleSigninAdmin } from '@/firebase/auth'
 
 interface ISigninForm {
   adminEmail: string
@@ -28,10 +28,9 @@ const SignInAdmin = () => {
   const handleSignin = async (data: ISigninForm) => {
     setSigninIsLoading(true)
 
-    const signupAdminResponse = await handleSigninUser({
-      userEmail: data.adminEmail,
-      userPassword: data.adminPassword,
-      userAdmin: true
+    const signupAdminResponse = await handleSigninAdmin({
+      adminEmail: data.adminEmail,
+      adminPassword: data.adminPassword
     })
 
     setSigninIsLoading(false)

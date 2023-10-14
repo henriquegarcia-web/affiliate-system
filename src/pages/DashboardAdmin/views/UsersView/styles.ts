@@ -1,4 +1,3 @@
-import { Form } from 'antd'
 import styled from 'styled-components'
 
 export const UsersView = styled.main`
@@ -8,27 +7,20 @@ export const UsersView = styled.main`
   padding: 10px;
 `
 
-export const CreateClientForm = styled(Form)`
+export const UsersWrapper = styled.main`
   display: flex;
   flex-direction: column;
-  row-gap: 15px;
-
-  .ant-form-item {
-    margin-bottom: 0px;
-  }
-`
-
-export const CreateClientFormFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 5px;
+  row-gap: 8px;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
 `
 
 export const User = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 12px;
+  padding: 10px 10px 10px 12px;
   border-radius: 8px;
   cursor: pointer;
 

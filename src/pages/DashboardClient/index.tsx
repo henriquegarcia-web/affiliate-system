@@ -92,14 +92,17 @@ const DashboardClient = () => {
         >
           <img src="/logo_full.png" alt="" />
         </S.DashboardMenuLogo>
+
         <S.DashboardMenuWrapper>
           <S.DashboardMenuUserInfos
             style={{
               color: token.colorText
             }}
           >
-            <b style={{ color: token.colorPrimary }}>{userData?.userName}</b>
-            <p>{userData?.userEmail}</p>
+            <S.UserInfosName style={{ color: token.colorPrimary }}>
+              {userData?.userName}
+            </S.UserInfosName>
+            <S.UserInfosEmail>{userData?.userEmail}</S.UserInfosEmail>
             <span>
               <p>Seu acordo:</p> <b>CPA R$ 60</b>
             </span>
@@ -180,8 +183,10 @@ const DashboardClient = () => {
             color: token.colorText
           }}
         >
-          <b style={{ color: token.colorPrimary }}>{userData?.userName}</b>
-          <p>{userData?.userEmail}</p>
+          <S.UserInfosName style={{ color: token.colorPrimary }}>
+            {userData?.userName}
+          </S.UserInfosName>
+          <S.UserInfosEmail>{userData?.userEmail}</S.UserInfosEmail>
           <span>
             <p>Seu acordo:</p> <b>CPA R$ 60</b>
           </span>

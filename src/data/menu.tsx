@@ -3,6 +3,8 @@ import LinksView from '@/pages/DashboardClient/views/LinksView'
 import MediasView from '@/pages/DashboardClient/views/MediasView'
 
 import UsersView from '@/pages/DashboardAdmin/views/UsersView'
+import AccessView from '@/pages/DashboardAdmin/views/AccessView'
+import WithdrawView from '@/pages/DashboardAdmin/views/WithdrawView'
 
 import {
   IoExitOutline,
@@ -11,8 +13,9 @@ import {
   IoFolderOpenOutline,
   IoOpenOutline,
   IoReceiptOutline,
-  IoTicketOutline,
-  IoPeopleOutline
+  IoPersonAddOutline,
+  IoPeopleOutline,
+  IoFileTrayFullOutline
 } from 'react-icons/io5'
 
 export interface IMenuData {
@@ -75,10 +78,16 @@ const adminMenuData = [
     menuComponent: <UsersView />
   },
   {
+    menuId: 'menu_withdraw',
+    menuLabel: 'Solicitações',
+    menuIcon: <IoFileTrayFullOutline />,
+    menuComponent: <WithdrawView />
+  },
+  {
     menuId: 'menu_access',
     menuLabel: 'Acessos',
-    menuIcon: <IoTicketOutline />,
-    menuComponent: <></>
+    menuIcon: <IoPersonAddOutline />,
+    menuComponent: <AccessView />
   }
 ]
 

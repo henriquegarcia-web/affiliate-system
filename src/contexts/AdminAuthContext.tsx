@@ -12,19 +12,21 @@ import React, {
 // import { message } from 'antd'
 
 import firebase from '@/firebase/firebase'
+import { handleGetAdminData, handleLogoutUser } from '@/firebase/auth'
+
 import {
-  handleGetAllNonAdminUsers,
-  // handleDeleteAdminAccount,
-  handleGetUserData,
-  handleLogoutUser
-} from '@/firebase/auth'
+  handleGetAllUsers,
+  handleGetAllAuthenticatedUsers
+} from '@/firebase/admin'
 
 import { IUserData } from '@/@types/Auth'
+import { IAuthenticatedUser } from '@/@types/Admin'
 
 interface AdminAuthContextData {
   userId: string | null
   userData: IUserData | null
   affiliatesList: IUserData[] | null
+  authenticatedUsersList: IAuthenticatedUser[] | null
   isAdminLogged: boolean
   isDeletingClientAccount: boolean
 
@@ -45,15 +47,20 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userData, setUserData] = useState<IUserData | null>(null)
 
   const [affiliatesList, setAffiliatesList] = useState<IUserData[] | null>(null)
+  const [authenticatedUsersList, setAuthenticatedUsersList] = useState<
+    IAuthenticatedUser[] | null
+  >(null)
 
   const [isDeletingClientAccount, setIsDeletingClientAccount] =
     useState<boolean>(false)
 
   const isAdminLogged = useMemo(() => {
-    if (!userData) return false
+    return !!userId
+  }, [userId])
 
-    return !!userId && userData.userIsAdmin
-  }, [userId, userData])
+  // useEffect(() => {
+  //   console.log(authenticatedUsersList)
+  // }, [authenticatedUsersList])
 
   // -----------------------------------------------------------------
 
@@ -105,7 +112,7 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   useEffect(() => {
-    const unsubscribe = handleGetUserData((accountData) => {
+    const unsubscribe = handleGetAdminData((accountData) => {
       setUserData(accountData)
     })
 
@@ -119,8 +126,20 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
   // -----------------------------------------------------------------
 
   useEffect(() => {
-    const unsubscribe = handleGetAllNonAdminUsers((affiliates) => {
+    const unsubscribe = handleGetAllUsers((affiliates) => {
       setAffiliatesList(affiliates)
+    })
+
+    if (unsubscribe) {
+      return () => {
+        unsubscribe()
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    const unsubscribe = handleGetAllAuthenticatedUsers((authenticatedUsers) => {
+      setAuthenticatedUsersList(authenticatedUsers)
     })
 
     if (unsubscribe) {
@@ -145,7 +164,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
       isDeletingClientAccount,
       handleLogout,
       handleDeleteClientAccount,
-      affiliatesList
+      affiliatesList,
+      authenticatedUsersList
     }
   }, [
     userId,
@@ -154,7 +174,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     isDeletingClientAccount,
     handleLogout,
     handleDeleteClientAccount,
-    affiliatesList
+    affiliatesList,
+    authenticatedUsersList
   ])
 
   return (
