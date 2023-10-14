@@ -7,42 +7,54 @@ export const HomeView = styled.main`
   padding: 10px;
 `
 
-export const MainDatails = styled.div`
+export const AnalyticWrapper = styled.div`
   display: flex;
-  width: 100%;
-  column-gap: 10px;
-  margin-bottom: 20px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  gap: 15px;
+  padding: 10px;
 `
 
-export const MainDatailBlock = styled.div`
+export const AnalyticContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  width: calc(50% - 7.5px);
+`
+
+export const AnalyticHeader = styled.div`
   display: flex;
   justify-content: center;
-  width: calc(50% - 5px);
-  padding: 20px;
+  width: 100%;
+  padding: 16px;
   border-radius: 8px;
+  transition: 0.3s;
 
   p {
-    font-size: 16px;
-    line-height: 16px;
-    font-weight: 300;
+    font-size: 14px;
+    line-height: 14px;
+    font-weight: 400;
+    text-transform: uppercase;
 
     b {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 800;
     }
   }
+
+  &:hover {
+    border: 1px solid rgba(112, 220, 73, 0.6) !important;
+  }
 `
 
-export const ChartsContainer = styled.div`
+export const AnalyticChart = styled.div`
   display: flex;
+  /* justify-content: center; */
   width: 100%;
-  height: 300px;
-  column-gap: 10px;
-`
-
-export const Chart = styled.div`
-  display: flex;
-  width: calc(50% - 5px);
+  height: 220px;
   padding: 10px;
   border-radius: 8px;
+
+  background-color: rgba(0, 0, 0, 0.25);
 `

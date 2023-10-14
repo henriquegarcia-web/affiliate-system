@@ -1,8 +1,10 @@
 import * as S from './styles'
 import * as G from '@/utils/styles/globals'
 
-import { Button, Input, theme } from 'antd'
-import { IoCreateOutline, IoSearchSharp } from 'react-icons/io5'
+import { Button, Input, message, theme } from 'antd'
+import { IoSearchSharp } from 'react-icons/io5'
+
+import ClipboardJS from 'clipboard'
 
 const LinksView = () => {
   const { token } = theme.useToken()
@@ -23,9 +25,6 @@ const LinksView = () => {
             }
             placeholder="Pesquise aqui..."
           />
-          {/* <Button type="default" onClick={() => {}}>
-            Novo afiliado
-          </Button> */}
         </G.ViewHeader>
         <G.ViewContent
           style={{
@@ -33,52 +32,26 @@ const LinksView = () => {
             border: `1px solid ${token.colorBorderSecondary}`
           }}
         >
-          <S.Link
-            style={{
-              backgroundColor: token.colorBgElevated,
-              border: `1px solid ${token.colorBorderSecondary}`,
-              color: token.colorTextSecondary
-            }}
-          >
-            <Button type="primary" size="small">
-              Gerar Link
-            </Button>
-            <p>Link da Homepage</p>
-
-            <span>
-              <Button
-                size="small"
-                icon={
-                  <IoCreateOutline
-                    style={{ fontSize: 16, marginLeft: '4px' }}
-                  />
-                }
+          <S.LinkWrapper>
+            <S.LinkWrapperHeader
+              style={{
+                color: token.colorTextTertiary
+              }}
+            >
+              <S.LinkLine>Ação</S.LinkLine>
+              <S.LinkLine>Nome do link</S.LinkLine>
+            </S.LinkWrapperHeader>
+            <S.LinkWrapperContent>
+              <Link
+                linkTitle="Link da Homepage"
+                linkUrl="https://www.youtube.com/"
               />
-            </span>
-          </S.Link>
-          <S.Link
-            style={{
-              backgroundColor: token.colorBgElevated,
-              border: `1px solid ${token.colorBorderSecondary}`,
-              color: token.colorTextSecondary
-            }}
-          >
-            <Button type="primary" size="small">
-              Gerar Link
-            </Button>
-            <p>Link do Cassino Homepage</p>
-
-            <span>
-              <Button
-                size="small"
-                icon={
-                  <IoCreateOutline
-                    style={{ fontSize: 16, marginLeft: '4px' }}
-                  />
-                }
+              <Link
+                linkTitle="Link da Homepage do Cassino"
+                linkUrl="https://www.youtube.com/"
               />
-            </span>
-          </S.Link>
+            </S.LinkWrapperContent>
+          </S.LinkWrapper>
         </G.ViewContent>
       </G.View>
     </S.LinksView>
@@ -86,3 +59,59 @@ const LinksView = () => {
 }
 
 export default LinksView
+
+// =====================================================
+
+interface ILink {
+  linkTitle: string
+  linkUrl: string
+}
+
+const Link = ({ linkTitle, linkUrl }: ILink) => {
+  const { token } = theme.useToken()
+
+  const handleCopyLink = () => {
+    const clipboard = new ClipboardJS('.link')
+
+    clipboard.on('success', () => {
+      message.open({
+        type: 'success',
+        content: 'Link copiado com sucesso!'
+      })
+      clipboard.destroy()
+    })
+
+    clipboard.on('error', () => {
+      message.open({
+        type: 'error',
+        content: 'Falha ao copiar o link!'
+      })
+      clipboard.destroy()
+    })
+  }
+
+  return (
+    <S.Link
+      style={{
+        backgroundColor: token.colorBgElevated,
+        border: `1px solid ${token.colorBorderSecondary}`,
+        color: token.colorTextSecondary
+      }}
+    >
+      <S.LinkLine>
+        <Button
+          className="link"
+          type="primary"
+          size="small"
+          data-clipboard-text={linkUrl}
+          onClick={handleCopyLink}
+        >
+          Copiar Link
+        </Button>
+      </S.LinkLine>
+      <S.LinkLine>
+        <p>{linkTitle}</p>
+      </S.LinkLine>
+    </S.Link>
+  )
+}

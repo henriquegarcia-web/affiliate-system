@@ -28,12 +28,13 @@ ChartJS.register(
 
 export const options = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
-      position: 'top' as const
+      display: false
     },
     title: {
-      display: true,
+      display: false,
       text: 'Gráfico de Exemplo'
     }
   }
@@ -49,82 +50,89 @@ const labels = [
   'Julho'
 ]
 
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: 'Dataset 1',
-      data: labels.map(() => faker.datatype.number({ min: 0, max: 2000 })),
-      borderColor: '#70dc49',
-      backgroundColor: 'rgba(112, 220, 73, 0.5)'
-    }
-    // {
-    //   label: 'Dataset 2',
-    //   data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
-    //   borderColor: 'rgb(53, 162, 235)',
-    //   backgroundColor: 'rgba(53, 162, 235, 0.5)'
-    // }
-  ]
-}
-
 const HomeView = () => {
   const { token } = theme.useToken()
 
   return (
     <S.HomeView>
       <G.View>
-        <G.ViewContent
+        <G.ViewContentFull
           style={{
             backgroundColor: token.colorBgContainer,
             border: `1px solid ${token.colorBorderSecondary}`
           }}
         >
-          <S.MainDatails>
-            <S.MainDatailBlock
-              style={{
-                backgroundColor: token.colorBgLayout,
-                border: `1px solid ${token.colorPrimary}`,
-                color: token.colorTextBase
-              }}
-            >
-              <p>
-                Total de vendas realizadas:{' '}
-                <b style={{ color: token.colorPrimary }}>15 vendas</b>
-              </p>
-            </S.MainDatailBlock>
-            <S.MainDatailBlock
-              style={{
-                backgroundColor: token.colorBgLayout,
-                border: `1px solid ${token.colorPrimary}`,
-                color: token.colorTextBase
-              }}
-            >
-              <p>
-                Disponível para saque:{' '}
-                <b style={{ color: token.colorPrimary }}>R$ 7.500,00</b>
-              </p>
-            </S.MainDatailBlock>
-          </S.MainDatails>
-          <S.ChartsContainer>
-            <S.Chart
-              style={{
-                border: `1px solid ${token.colorBorderSecondary}`
-              }}
-            >
-              <Line options={options} data={data} />
-            </S.Chart>
-            <S.Chart
-              style={{
-                border: `1px solid ${token.colorBorderSecondary}`
-              }}
-            >
-              <Line options={options} data={data} />
-            </S.Chart>
-          </S.ChartsContainer>
-        </G.ViewContent>
+          <S.AnalyticWrapper>
+            <Chart headerLabel="CPA" chartLabel="CPA" headerValue="10" />
+            <Chart
+              headerLabel="CPA Total"
+              chartLabel="CPA Total"
+              headerValue="20"
+            />
+            <Chart
+              headerLabel="Disponível para saque"
+              chartLabel="Disponível"
+              headerValue="R$ 500,00"
+            />
+            <Chart
+              headerLabel="Total faturado"
+              chartLabel="Faturado"
+              headerValue="R$ 1.000,00"
+            />
+          </S.AnalyticWrapper>
+        </G.ViewContentFull>
       </G.View>
     </S.HomeView>
   )
 }
 
 export default HomeView
+
+// ================================================ CHART
+
+interface IChart {
+  headerLabel: string
+  headerValue: string
+  chartLabel: string
+}
+
+const Chart = ({ headerLabel, headerValue, chartLabel }: IChart) => {
+  const { token } = theme.useToken()
+
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: chartLabel,
+        data: labels.map(() => faker.datatype.number({ min: 0, max: 2000 })),
+        borderColor: '#70dc49',
+        backgroundColor: 'rgba(112, 220, 73, 0.5)',
+        borderWidth: 2
+      }
+    ]
+  }
+
+  return (
+    <S.AnalyticContainer>
+      <S.AnalyticHeader
+        style={{
+          backgroundColor: token.colorBgLayout,
+          border: `1px solid ${token.colorBorderSecondary}`,
+          color: token.colorTextBase
+        }}
+      >
+        <p style={{ color: token.colorTextSecondary }}>
+          {headerLabel}:{' '}
+          <b style={{ color: token.colorPrimary }}>{headerValue}</b>
+        </p>
+      </S.AnalyticHeader>
+      <S.AnalyticChart
+        style={{
+          border: `1px solid ${token.colorBorderSecondary}`
+        }}
+      >
+        <Line options={options} data={data} />
+      </S.AnalyticChart>
+    </S.AnalyticContainer>
+  )
+}
