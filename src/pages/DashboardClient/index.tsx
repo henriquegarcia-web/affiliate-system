@@ -203,8 +203,22 @@ const DashboardClient = () => {
               })}
             </S.MainMenu>
             <S.BottomMenu>
-              <Button onClick={showWithdrawModal}>Solicitar saque</Button>
-              <Button onClick={showWithdrawModal}>Histórico de saques</Button>
+              <Button
+                onClick={() => {
+                  showWithdrawModal()
+                  setIsMenuMobileOpen(false)
+                }}
+              >
+                Solicitar saque
+              </Button>
+              <Button
+                onClick={() => {
+                  showWithdrawHistoricModal()
+                  setIsMenuMobileOpen(false)
+                }}
+              >
+                Histórico de saques
+              </Button>
               <Button danger style={{ width: '100%' }} onClick={handleLogout}>
                 Sair
               </Button>
