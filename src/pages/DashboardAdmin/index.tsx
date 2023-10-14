@@ -2,15 +2,16 @@ import { useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 
 import * as S from './styles'
-import { IoExitOutline, IoHomeOutline, IoPeopleOutline } from 'react-icons/io5'
+import {} from 'react-icons/io5'
 
 import { Avatar, Button, Dropdown, Spin, theme } from 'antd'
-import UsersView from './views/UsersView'
 
 import type { MenuProps } from 'antd'
 
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import { formatUsername } from '@/utils/functions/formatUsername'
+
+import { IMenuData, adminMenuData, privateAdminMenusData } from '@/data/menu'
 
 const DashboardAdmin = () => {
   const navigate = useNavigate()
@@ -34,7 +35,7 @@ const DashboardAdmin = () => {
   }, [menuId])
 
   const formattedPrivateMenus: MenuProps['items'] = useMemo(() => {
-    const transformedMenus = privateMenusData.map((menu: any) => {
+    const transformedMenus = privateAdminMenusData.map((menu: any) => {
       return {
         label: menu.menuLabel,
         key: menu.menuId,
@@ -125,54 +126,8 @@ const DashboardAdmin = () => {
         </S.DashboardViewHeader>
         <S.DashboardViewWrapper>{viewToRender}</S.DashboardViewWrapper>
       </S.DashboardView>
-      {/* <button onClick={handleLogout}>Sair</button> */}
     </S.DashboardAdmin>
   )
 }
 
 export default DashboardAdmin
-
-interface IMenuData {
-  menuId: string
-  menuLabel: string
-  menuIcon: React.ReactNode
-  menuComponent: React.ReactNode
-}
-
-const adminMenuData = [
-  // {
-  //   menuId: 'menu_home',
-  //   menuLabel: 'Início',
-  //   menuIcon: <IoHomeOutline />,
-  //   menuComponent: <></>
-  // },
-  {
-    menuId: 'menu_clients',
-    menuLabel: 'Usuários',
-    menuIcon: <IoPeopleOutline />,
-    menuComponent: <UsersView />
-  }
-  // {
-  //   menuId: '',
-  //   menuLabel: '',
-  //   menuIcon: <></>,
-  //   menuComponent: <></>,
-  // },
-]
-
-const privateMenusData = [
-  // {
-  //   menuId: 'minha-conta',
-  //   menuLabel: 'Minha conta',
-  //   menuIcon: <IoPersonOutline />,
-  //   menuDisabled: false,
-  //   menuDanger: false
-  // },
-  {
-    menuId: 'sair',
-    menuLabel: 'Sair',
-    menuIcon: <IoExitOutline />,
-    menuDisabled: false,
-    menuDanger: true
-  }
-]

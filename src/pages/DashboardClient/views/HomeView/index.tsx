@@ -64,21 +64,21 @@ const HomeView = () => {
         >
           <S.AnalyticWrapper>
             <S.AnalyticWrapperScroll>
-              <Chart headerLabel="CPA" chartLabel="CPA" headerValue="10" />
-              <Chart
-                headerLabel="CPA Total"
-                chartLabel="CPA Total"
-                headerValue="20"
-              />
               <Chart
                 headerLabel="Disponível para saque"
                 chartLabel="Disponível"
                 headerValue="R$ 500,00"
               />
+              <Chart headerLabel="CPA" chartLabel="CPA" headerValue="10" />
               <Chart
                 headerLabel="Total faturado"
                 chartLabel="Faturado"
                 headerValue="R$ 1.000,00"
+              />
+              <Chart
+                headerLabel="CPA Total"
+                chartLabel="CPA Total"
+                headerValue="20"
               />
             </S.AnalyticWrapperScroll>
           </S.AnalyticWrapper>

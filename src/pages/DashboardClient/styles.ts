@@ -22,6 +22,9 @@ interface IWithdrawLabel {
 }
 
 export const DashboardClient = styled(Window)<IDashboard>`
+  position: relative;
+  overflow: hidden;
+
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
@@ -130,7 +133,6 @@ export const DashboardView = styled.div`
   flex-direction: column;
   width: calc(100% - ${adminMenuWidth});
   height: 100%;
-  overflow: hidden;
 
   @media screen and (max-width: ${responsiveTablet}) {
     width: 100%;
@@ -163,7 +165,7 @@ export const MenuMobile = styled.div<IMenuMobile>`
   flex-direction: column;
   row-gap: 6px;
   width: 220px;
-  height: calc(100vh - ${adminViewHeader});
+  height: calc(100% - ${adminViewHeader});
   padding: 15px;
   transition: 0.3s;
 
@@ -279,7 +281,6 @@ export const UserMenu = styled.div`
   display: flex;
   align-items: center;
   column-gap: 10px;
-  cursor: pointer;
 
   &:hover {
     p {
@@ -295,16 +296,47 @@ export const UserMenu = styled.div`
 export const UserMenuBalance = styled.div`
   display: flex;
   width: fit-content;
-  border-radius: 50px;
-  padding: 6px 14px 5px 14px;
+  column-gap: 8px;
   margin-right: 6px;
 
-  font-size: 12px;
-  line-height: 12px;
-  font-weight: 500;
+  p {
+    display: flex;
+    width: fit-content;
+    border-radius: 50px;
+    padding: 6px 14px 5px 14px;
 
-  background-color: rgba(112, 220, 73, 0.4);
-  border: 1px solid rgba(112, 220, 73, 0.8);
+    font-size: 12px;
+    line-height: 12px;
+    font-weight: 500;
+
+    background-color: rgba(112, 220, 73, 0.4);
+    border: 1px solid rgba(112, 220, 73, 0.8);
+  }
+
+  button {
+    display: flex;
+    width: fit-content;
+    border-radius: 6px;
+    padding: 6px 14px 5px 14px;
+    cursor: pointer;
+
+    font-size: 12px;
+    line-height: 12px;
+    font-weight: 500;
+
+    background-color: rgba(112, 220, 73, 0.4);
+    border: 1px solid rgba(112, 220, 73, 0.8);
+  }
+
+  @media screen and (max-width: ${responsiveMobile}) {
+    width: 100%;
+
+    p {
+      display: flex;
+      justify-content: center;
+      flex: 1;
+    }
+  }
 `
 
 export const UserMenuName = styled.p`

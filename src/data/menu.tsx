@@ -2,13 +2,17 @@ import HomeView from '@/pages/DashboardClient/views/HomeView'
 import LinksView from '@/pages/DashboardClient/views/LinksView'
 import MediasView from '@/pages/DashboardClient/views/MediasView'
 
+import UsersView from '@/pages/DashboardAdmin/views/UsersView'
+
 import {
   IoExitOutline,
   IoHomeOutline,
   IoLinkOutline,
   IoFolderOpenOutline,
   IoOpenOutline,
-  IoReceiptOutline
+  IoReceiptOutline,
+  IoTicketOutline,
+  IoPeopleOutline
 } from 'react-icons/io5'
 
 export interface IMenuData {
@@ -18,7 +22,7 @@ export interface IMenuData {
   menuComponent: React.ReactNode
 }
 
-const adminMenuData = [
+const affiliateMenuData = [
   {
     menuId: 'menu_home',
     menuLabel: 'Início',
@@ -39,7 +43,7 @@ const adminMenuData = [
   }
 ]
 
-const privateAdminMenuData = [
+const privateAffiliateMenuData = [
   {
     menuId: 'withdraw',
     menuLabel: 'Solicitar saque',
@@ -63,4 +67,34 @@ const privateAdminMenuData = [
   }
 ]
 
-export { adminMenuData, privateAdminMenuData }
+const adminMenuData = [
+  {
+    menuId: 'menu_clients',
+    menuLabel: 'Usuários',
+    menuIcon: <IoPeopleOutline />,
+    menuComponent: <UsersView />
+  },
+  {
+    menuId: 'menu_access',
+    menuLabel: 'Acessos',
+    menuIcon: <IoTicketOutline />,
+    menuComponent: <></>
+  }
+]
+
+const privateAdminMenusData = [
+  {
+    menuId: 'sair',
+    menuLabel: 'Sair',
+    menuIcon: <IoExitOutline />,
+    menuDisabled: false,
+    menuDanger: true
+  }
+]
+
+export {
+  affiliateMenuData,
+  adminMenuData,
+  privateAffiliateMenuData,
+  privateAdminMenusData
+}

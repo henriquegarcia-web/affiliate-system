@@ -24,7 +24,11 @@ import { formatUsername } from '@/utils/functions/formatUsername'
 import { useClientAuth } from '@/contexts/ClientAuthContext'
 import useClickOutside from '@/hooks/useClickOutside'
 
-import { IMenuData, adminMenuData, privateAdminMenuData } from '@/data/menu'
+import {
+  IMenuData,
+  affiliateMenuData,
+  privateAffiliateMenuData
+} from '@/data/menu'
 import type { MenuProps } from 'antd'
 
 const DashboardClient = () => {
@@ -32,7 +36,7 @@ const DashboardClient = () => {
 
   const { handleLogout, userData } = useClientAuth()
 
-  const [menuId, setMenuId] = useState(adminMenuData[0].menuId)
+  const [menuId, setMenuId] = useState(affiliateMenuData[0].menuId)
   const [isMenuMobileOpen, setIsMenuMobileOpen] = useState(false)
 
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
@@ -47,11 +51,12 @@ const DashboardClient = () => {
     setIsWithdrawHistoricModalOpen(false)
 
   const toggleMenuMobile = () => setIsMenuMobileOpen(!isMenuMobileOpen)
+  const closeMenuMobile = () => setIsMenuMobileOpen(false)
 
   const menuMobileRef = useRef(null)
 
   const viewToRender = useMemo(() => {
-    const activeMenuItem = adminMenuData.find(
+    const activeMenuItem = affiliateMenuData.find(
       (menuItem) => menuItem.menuId === menuId
     )
 
@@ -100,7 +105,7 @@ const DashboardClient = () => {
             </span>
           </S.DashboardMenuUserInfos>
 
-          {adminMenuData.map((menu: IMenuData) => {
+          {affiliateMenuData.map((menu: IMenuData) => {
             const buttonType = menu.menuId === menuId ? 'primary' : 'default'
             return (
               <Button
@@ -143,6 +148,7 @@ const DashboardClient = () => {
             isWithdrawHistoricModalOpen={isWithdrawHistoricModalOpen}
             showWithdrawHistoricModal={showWithdrawHistoricModal}
             handleWithdrawHistoricModalClose={handleWithdrawHistoricModalClose}
+            closeMenuMobile={closeMenuMobile}
           />
           <S.MenuMobileToggle
             style={{ color: token.colorText }}
@@ -150,83 +156,74 @@ const DashboardClient = () => {
           >
             {isMenuMobileOpen ? <IoClose /> : <IoMenu />}
           </S.MenuMobileToggle>
-          <S.MenuMobile
-            ref={menuMobileRef}
-            style={{ backgroundColor: token.colorBgElevated }}
-            open={isMenuMobileOpen ? 1 : 0}
-          >
-            <UserMenu
-              isWithdrawModalOpen={isWithdrawModalOpen}
-              showWithdrawModal={showWithdrawModal}
-              handleWithdrawModalClose={handleWithdrawModalClose}
-              isWithdrawHistoricModalOpen={isWithdrawHistoricModalOpen}
-              showWithdrawHistoricModal={showWithdrawHistoricModal}
-              handleWithdrawHistoricModalClose={
-                handleWithdrawHistoricModalClose
-              }
-              mobile
-            />
-            <S.DashboardMenuUserInfos
-              style={{
-                color: token.colorText
-              }}
-            >
-              <b style={{ color: token.colorPrimary }}>{userData?.userName}</b>
-              <p>{userData?.userEmail}</p>
-              <span>
-                <p>Seu acordo:</p> <b>CPA R$ 60</b>
-              </span>
-            </S.DashboardMenuUserInfos>
-            <S.MainMenu>
-              {adminMenuData.map((menu: IMenuData) => {
-                const buttonType =
-                  menu.menuId === menuId ? 'primary' : 'default'
-                return (
-                  <Button
-                    key={menu.menuId}
-                    type={buttonType}
-                    icon={menu.menuIcon}
-                    onClick={() => {
-                      setMenuId(menu.menuId)
-                      setIsMenuMobileOpen(false)
-                    }}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'flex-start',
-                      alignItems: 'center',
-                      fontSize: 13
-                    }}
-                  >
-                    {menu.menuLabel}
-                  </Button>
-                )
-              })}
-            </S.MainMenu>
-            <S.BottomMenu>
-              <Button
-                onClick={() => {
-                  showWithdrawModal()
-                  setIsMenuMobileOpen(false)
-                }}
-              >
-                Solicitar saque
-              </Button>
-              <Button
-                onClick={() => {
-                  showWithdrawHistoricModal()
-                  setIsMenuMobileOpen(false)
-                }}
-              >
-                Histórico de saques
-              </Button>
-              <Button danger style={{ width: '100%' }} onClick={handleLogout}>
-                Sair
-              </Button>
-            </S.BottomMenu>
-          </S.MenuMobile>
         </S.DashboardViewHeader>
         <S.DashboardViewWrapper>{viewToRender}</S.DashboardViewWrapper>
       </S.DashboardView>
+
+      <S.MenuMobile
+        ref={menuMobileRef}
+        style={{ backgroundColor: token.colorBgElevated }}
+        open={isMenuMobileOpen ? 1 : 0}
+      >
+        <UserMenu
+          isWithdrawModalOpen={isWithdrawModalOpen}
+          showWithdrawModal={showWithdrawModal}
+          handleWithdrawModalClose={handleWithdrawModalClose}
+          isWithdrawHistoricModalOpen={isWithdrawHistoricModalOpen}
+          showWithdrawHistoricModal={showWithdrawHistoricModal}
+          handleWithdrawHistoricModalClose={handleWithdrawHistoricModalClose}
+          mobile
+          closeMenuMobile={closeMenuMobile}
+        />
+        <S.DashboardMenuUserInfos
+          style={{
+            color: token.colorText
+          }}
+        >
+          <b style={{ color: token.colorPrimary }}>{userData?.userName}</b>
+          <p>{userData?.userEmail}</p>
+          <span>
+            <p>Seu acordo:</p> <b>CPA R$ 60</b>
+          </span>
+        </S.DashboardMenuUserInfos>
+        <S.MainMenu>
+          {affiliateMenuData.map((menu: IMenuData) => {
+            const buttonType = menu.menuId === menuId ? 'primary' : 'default'
+            return (
+              <Button
+                key={menu.menuId}
+                type={buttonType}
+                icon={menu.menuIcon}
+                onClick={() => {
+                  setMenuId(menu.menuId)
+                  setIsMenuMobileOpen(false)
+                }}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  fontSize: 13
+                }}
+              >
+                {menu.menuLabel}
+              </Button>
+            )
+          })}
+        </S.MainMenu>
+        <S.BottomMenu>
+          <Button
+            onClick={() => {
+              showWithdrawHistoricModal()
+              setIsMenuMobileOpen(false)
+            }}
+          >
+            Histórico de saques
+          </Button>
+          <Button danger style={{ width: '100%' }} onClick={handleLogout}>
+            Sair
+          </Button>
+        </S.BottomMenu>
+      </S.MenuMobile>
     </S.DashboardClient>
   )
 }
@@ -243,6 +240,7 @@ interface IUserMenu {
   showWithdrawHistoricModal: () => void
   handleWithdrawHistoricModalClose: () => void
   mobile?: boolean
+  closeMenuMobile: () => void
 }
 
 const UserMenu = ({
@@ -252,7 +250,8 @@ const UserMenu = ({
   isWithdrawHistoricModalOpen,
   showWithdrawHistoricModal,
   handleWithdrawHistoricModalClose,
-  mobile = false
+  mobile = false,
+  closeMenuMobile
 }: IUserMenu) => {
   const { token } = theme.useToken()
 
@@ -262,7 +261,7 @@ const UserMenu = ({
   // -----------------------------------------------------
 
   const formattedPrivateMenus: MenuProps['items'] = useMemo(() => {
-    const transformedMenus = privateAdminMenuData.map((menu: any) => {
+    const transformedMenus = privateAffiliateMenuData.map((menu: any) => {
       return {
         label: menu.menuLabel,
         key: menu.menuId,
@@ -278,11 +277,26 @@ const UserMenu = ({
   if (mobile)
     return (
       <S.UserMenuMobile>
-        <S.UserMenuBalance style={{ color: token.colorText }}>
-          R$ 1.500,00
+        <S.UserMenuBalance
+          style={{ color: token.colorText }}
+          onClick={() => {
+            showWithdrawModal()
+            closeMenuMobile()
+          }}
+        >
+          <p>R$ 1.500,00</p>
+          <button
+            style={{
+              backgroundColor: token.colorBgContainer,
+              // border: `1px solid ${token.colorBorderSecondary}`,
+              color: token.colorPrimary
+            }}
+          >
+            Sacar
+          </button>
         </S.UserMenuBalance>
 
-        <S.UserMenuMobileWrapper
+        {/* <S.UserMenuMobileWrapper
           style={{
             backgroundColor: token.colorBgContainer,
             border: `1px solid ${token.colorBorderSecondary}`
@@ -305,7 +319,7 @@ const UserMenu = ({
               formatUsername(userData?.userName)
             )}
           </Avatar>
-        </S.UserMenuMobileWrapper>
+        </S.UserMenuMobileWrapper> */}
       </S.UserMenuMobile>
     )
 
@@ -317,6 +331,7 @@ const UserMenu = ({
           onClick: (e) => {
             if (e.key === 'withdraw') {
               showWithdrawModal()
+              closeMenuMobile()
               return
             }
             if (e.key === 'withdraw-historic') {
@@ -332,8 +347,23 @@ const UserMenu = ({
         }}
       >
         <S.UserMenu>
-          <S.UserMenuBalance style={{ color: token.colorText }}>
-            R$ 1.500,00
+          <S.UserMenuBalance
+            style={{ color: token.colorText }}
+            onClick={() => {
+              showWithdrawModal()
+              closeMenuMobile()
+            }}
+          >
+            <p>R$ 1.500,00</p>
+            <button
+              style={{
+                backgroundColor: token.colorBgContainer,
+                // border: `1px solid ${token.colorBorderSecondary}`,
+                color: token.colorPrimary
+              }}
+            >
+              Sacar
+            </button>
           </S.UserMenuBalance>
 
           <S.UserMenuName style={{ color: token.colorText }}>
