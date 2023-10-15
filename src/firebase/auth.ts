@@ -79,14 +79,14 @@ const handleSignupUser = async ({
     // ----------------------------------
 
     const authenticatedUsersRef = firebase.database().ref('authenticatedUsers')
-    const userAccountsRef = firebase.database().ref('authenticatedUsers')
+    const userAccountsRef = firebase.database().ref('usersAccounts')
 
     const userAuthenticationQuery = authenticatedUsersRef
       .orderByChild('userEmail')
       .equalTo(userEmail)
 
     const userQuery = userAccountsRef
-      .orderByChild('adminEmail')
+      .orderByChild('userEmail')
       .equalTo(userEmail)
 
     const userAuthenticationQuerySnapshot = await userAuthenticationQuery.get()

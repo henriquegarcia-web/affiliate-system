@@ -40,7 +40,7 @@ export const User = styled.div`
   }
 `
 
-// ================================================== MODALS
+// ================================================== MODAL LINK
 
 export const LinksList = styled.div`
   display: flex;
@@ -48,7 +48,29 @@ export const LinksList = styled.div`
   border-radius: 6px;
   padding: 10px;
   margin-bottom: 12px;
-  row-gap: 6px;
+  row-gap: 8px;
+`
+
+// =========================================== LINK
+
+export const EmptyLink = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 5px 0;
+
+  font-size: 13px;
+  line-height: 13px;
+  font-weight: 400;
+`
+
+export const LinksFormCreation = styled.form`
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+
+  button {
+    margin: 5px 0 0 auto;
+  }
 `
 
 export const Link = styled.div`
@@ -81,7 +103,51 @@ export const Link = styled.div`
   }
 `
 
-export const LinksFormCreation = styled.form`
+// ================================================== MODAL COMISSION
+
+export const LinksComission = styled.div`
   display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 12px;
+  row-gap: 8px;
+`
+
+// =========================================== COMISSION
+
+export const ComissionFormCreation = styled.form`
+  display: flex;
+  column-gap: 5px;
+`
+
+export const Comission = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   column-gap: 6px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  font-size: 14px;
+  line-height: 14px;
+
+  p {
+    font-weight: 300;
+  }
+
+  b {
+    font-weight: 500;
+  }
+
+  span {
+    display: flex;
+    column-gap: 6px;
+    margin-left: auto;
+  }
+
+  button {
+    font-size: 12px !important;
+  }
 `
