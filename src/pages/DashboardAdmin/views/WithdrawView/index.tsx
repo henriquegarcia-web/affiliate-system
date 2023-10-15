@@ -12,8 +12,13 @@ import { Button, Form, Input, Modal, theme } from 'antd'
 
 import { Controller, useForm } from 'react-hook-form'
 
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
+import { IWithdraw } from '@/@types/Admin'
+
 const AccessView = () => {
   const { token } = theme.useToken()
+
+  const { withdrawsList } = useAdminAuth()
 
   // const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
@@ -46,14 +51,11 @@ const AccessView = () => {
             border: `1px solid ${token.colorBorderSecondary}`
           }}
         >
-          {/* {affiliatesList?.map((affiliate) => (
-            <User
-              key={affiliate.userId}
-              affiliate={affiliate}
-              showLinksModal={showLinksModal}
-              showComissionModal={showComissionModal}
-            />
-          ))} */}
+          <S.WithdrawWrapper>
+            {withdrawsList?.map((withdraw: IWithdraw) => (
+              <Withdraw key={withdraw.withdrawId} withdraw={withdraw} />
+            ))}
+          </S.WithdrawWrapper>
         </G.ViewContent>
       </G.View>
     </S.WithdrawView>
@@ -61,3 +63,36 @@ const AccessView = () => {
 }
 
 export default AccessView
+
+interface IWithdrawItem {
+  withdraw: IWithdraw
+}
+
+const Withdraw = ({ withdraw }: IWithdrawItem) => {
+  const { token } = theme.useToken()
+
+  return (
+    <S.Withdraw
+      style={{
+        backgroundColor: token.colorBgElevated,
+        border: `1px solid ${token.colorBorderSecondary}`,
+        color: token.colorTextSecondary
+      }}
+    >
+      <p>
+        <b>{withdraw.withdrawAmount}</b> / {withdraw.withdrawUsdt} /{' '}
+        {withdraw.withdrawStatus}
+      </p>
+
+      <span>
+        {/* <Button onClick={showCreateModal}>Links</Button>
+        <Button onClick={showComissionModal}>Comissão</Button> */}
+        {/* <Button
+          icon={
+            <IoTrashBinOutline style={{ fontSize: 16, marginLeft: '7px' }} />
+          }
+        /> */}
+      </span>
+    </S.Withdraw>
+  )
+}

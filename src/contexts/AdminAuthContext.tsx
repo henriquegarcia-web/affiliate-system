@@ -16,17 +16,19 @@ import { handleGetAdminData, handleLogoutUser } from '@/firebase/auth'
 
 import {
   handleGetAllUsers,
-  handleGetAllAuthenticatedUsers
+  handleGetAllAuthenticatedUsers,
+  handleGetAllWithdrawRequests
 } from '@/firebase/admin'
 
 import { IUserData } from '@/@types/Auth'
-import { IAuthenticatedUser } from '@/@types/Admin'
+import { IAuthenticatedUser, IWithdraw } from '@/@types/Admin'
 
 interface AdminAuthContextData {
   userId: string | null
   userData: IUserData | null
   affiliatesList: IUserData[] | null
   authenticatedUsersList: IAuthenticatedUser[] | null
+  withdrawsList: IWithdraw[] | null
   isAdminLogged: boolean
   isDeletingClientAccount: boolean
 
@@ -50,6 +52,7 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [authenticatedUsersList, setAuthenticatedUsersList] = useState<
     IAuthenticatedUser[] | null
   >(null)
+  const [withdrawsList, setWithdrawsList] = useState<IWithdraw[] | null>(null)
 
   const [isDeletingClientAccount, setIsDeletingClientAccount] =
     useState<boolean>(false)
@@ -149,6 +152,18 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
+  useEffect(() => {
+    const unsubscribe = handleGetAllWithdrawRequests((withdraws) => {
+      setWithdrawsList(withdraws)
+    })
+
+    if (unsubscribe) {
+      return () => {
+        unsubscribe()
+      }
+    }
+  }, [])
+
   // =================================================================
 
   // useEffect(() => {
@@ -165,7 +180,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
       handleLogout,
       handleDeleteClientAccount,
       affiliatesList,
-      authenticatedUsersList
+      authenticatedUsersList,
+      withdrawsList
     }
   }, [
     userId,
@@ -175,7 +191,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     handleLogout,
     handleDeleteClientAccount,
     affiliatesList,
-    authenticatedUsersList
+    authenticatedUsersList,
+    withdrawsList
   ])
 
   return (

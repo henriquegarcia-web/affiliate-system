@@ -3,7 +3,12 @@ import firebase from '@/firebase/firebase'
 import { message } from 'antd'
 
 import { IUserData } from '@/@types/Auth'
-import { IAuthenticatedUser, IComission, ILink } from '@/@types/Admin'
+import {
+  IAuthenticatedUser,
+  IComission,
+  ILink,
+  IWithdraw
+} from '@/@types/Admin'
 
 // ============================================= CREATE AFFILIATE REGISTRATION
 
@@ -90,6 +95,49 @@ const handleGetAllAuthenticatedUsers = (
       message.open({
         type: 'error',
         content: 'Falha ao obter contas de usuário não administradores'
+      })
+    }
+  }
+
+  const offCallback = () => {
+    userAccountsRef.off('value', listener)
+  }
+
+  userAccountsRef.on('value', listener)
+
+  return offCallback
+}
+
+// ============================================= GET ALL WITHDRAW REQUESTS
+
+const handleGetAllWithdrawRequests = (
+  callback: (withdrawData: IWithdraw[] | null) => void
+) => {
+  const userAccountsRef = firebase.database().ref('userAccounts')
+
+  const listener = (snapshot: any) => {
+    try {
+      if (snapshot && snapshot.exists()) {
+        const userAccountsData = snapshot.val()
+        const allWithdrawRequests: IWithdraw[] = []
+
+        for (const userId in userAccountsData) {
+          const userData: IUserData = userAccountsData[userId]
+
+          if ('userAffiliateWithdraws' in userData) {
+            const withdraws: IWithdraw[] = userData.userAffiliateWithdraws
+            allWithdrawRequests.push(...withdraws)
+          }
+        }
+
+        callback(allWithdrawRequests)
+      } else {
+        callback([])
+      }
+    } catch (error) {
+      message.open({
+        type: 'error',
+        content: 'Falha ao obter solicitações de saque'
       })
     }
   }
@@ -360,5 +408,6 @@ export {
   handleAddComission,
   handleDeleteComission,
   handleGetAllUsers,
-  handleGetAllAuthenticatedUsers
+  handleGetAllAuthenticatedUsers,
+  handleGetAllWithdrawRequests
 }
