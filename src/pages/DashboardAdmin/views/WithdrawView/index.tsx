@@ -5,18 +5,22 @@ import * as G from '@/utils/styles/globals'
 import {
   IoSearchSharp,
   IoTrashBinOutline,
-  IoCreateOutline
+  IoCreateOutline,
+  IoChevronDownOutline
 } from 'react-icons/io5'
 
-import { Button, Form, Input, Modal, theme } from 'antd'
+import { Button, Dropdown, Form, Input, Modal, theme } from 'antd'
 
 import { Controller, useForm } from 'react-hook-form'
 
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
-import { IWithdraw } from '@/@types/Admin'
 import { handleUpdateWithdrawStatus } from '@/firebase/admin'
+
 import { timestampToDate } from '@/utils/functions/convertTimestamp'
 import { formatCurrency } from '@/utils/functions/formatCurrency'
+
+import { IWithdraw } from '@/@types/Admin'
+import type { MenuProps } from 'antd'
 
 const AccessView = () => {
   const { token } = theme.useToken()
@@ -63,15 +67,28 @@ const AccessView = () => {
             border: `1px solid ${token.colorBorderSecondary}`
           }}
         >
-          <S.WithdrawWrapper>
-            {withdrawsList?.map((withdraw: IWithdraw) => (
-              <Withdraw
-                key={withdraw.withdrawId}
-                withdraw={withdraw}
-                showWithdrawModal={showWithdrawModal}
-              />
-            ))}
-          </S.WithdrawWrapper>
+          <S.WithdrawList>
+            <S.WithdrawHeader style={{ color: token.colorTextDisabled }}>
+              <S.WithdrawLine>
+                <p>Valor do saque</p>
+              </S.WithdrawLine>
+              <S.WithdrawLine>
+                <p>Solicitado por</p>
+              </S.WithdrawLine>
+              <S.WithdrawLine>
+                <p>Solicitado em</p>
+              </S.WithdrawLine>
+            </S.WithdrawHeader>
+            <S.WithdrawWrapper>
+              {withdrawsList?.map((withdraw: IWithdraw) => (
+                <Withdraw
+                  key={withdraw.withdrawId}
+                  withdraw={withdraw}
+                  showWithdrawModal={showWithdrawModal}
+                />
+              ))}
+            </S.WithdrawWrapper>
+          </S.WithdrawList>
         </G.ViewContent>
       </G.View>
 
@@ -104,19 +121,19 @@ const Withdraw = ({ withdraw, showWithdrawModal }: IWithdrawItem) => {
         color: token.colorTextSecondary
       }}
     >
-      <p>
-        <b>{withdraw.withdrawAmount}</b> / {withdraw.withdrawUsdt} /{' '}
-        {withdraw.withdrawStatus} / {withdraw?.withdrawUser?.userName}
-      </p>
+      <S.WithdrawLine>
+        {formatCurrency(withdraw?.withdrawAmount)}
+      </S.WithdrawLine>
+      <S.WithdrawLine>{withdraw?.withdrawUser?.userName}</S.WithdrawLine>
+      <S.WithdrawLine>
+        {timestampToDate(withdraw?.withdrawRegisteredAt)}
+      </S.WithdrawLine>
 
       <span>
+        <S.WithdrawLabel type={withdraw?.withdrawStatus}>
+          {getStatusLabel(withdraw?.withdrawStatus)}
+        </S.WithdrawLabel>
         <Button onClick={() => showWithdrawModal(withdraw)}>Status</Button>
-        {/* <Button onClick={showComissionModal}>Comissão</Button> */}
-        {/* <Button
-          icon={
-            <IoTrashBinOutline style={{ fontSize: 16, marginLeft: '7px' }} />
-          }
-        /> */}
       </span>
     </S.Withdraw>
   )
@@ -172,6 +189,7 @@ const WithdrawChangeStatusModal = ({
       onCancel={handleModalClose}
       footer={null}
       destroyOnClose
+      afterClose={handleModalClose}
     >
       <S.WithdrawDetails
         style={{
@@ -180,23 +198,24 @@ const WithdrawChangeStatusModal = ({
           color: token.colorTextSecondary
         }}
       >
-        <span>
+        <span style={{ backgroundColor: token.colorBgElevated }}>
           <p>Solicitado por: </p>
           <b>{withdrawOpenData?.withdrawUser?.userName}</b>
         </span>
-        <span>
+        <span style={{ backgroundColor: token.colorBgElevated }}>
           <p>Solicitado em:</p>
           <b>{timestampToDate(withdrawOpenData?.withdrawRegisteredAt)}</b>
         </span>
-        <span>
+        <span style={{ backgroundColor: token.colorBgElevated }}>
           <p>Chave USDT:</p> <b>{withdrawOpenData?.withdrawUsdt}</b>
         </span>
-        <span>
+        <span style={{ backgroundColor: token.colorBgElevated }}>
           <p>Valor do saque:</p>
           <b>{formatCurrency(withdrawOpenData?.withdrawAmount)}</b>
         </span>
-        <span>
-          <p>Status atual:</p> <b>{withdrawOpenData?.withdrawStatus}</b>
+        <span style={{ backgroundColor: token.colorBgElevated }}>
+          <p>Status atual:</p>
+          <b>{getStatusLabel(withdrawOpenData?.withdrawStatus)}</b>
         </span>
       </S.WithdrawDetails>
       <S.WithdrawEditStatusForm
@@ -207,20 +226,54 @@ const WithdrawChangeStatusModal = ({
           control={control}
           rules={{ required: 'Este campo é obrigatório' }}
           render={({ field }) => (
-            <Input {...field} placeholder="Digite o nome" />
+            <Dropdown.Button
+              menu={{
+                items,
+                onClick: (e) => field.onChange(e.key),
+                style: { width: '100%' }
+              }}
+              icon={
+                <IoChevronDownOutline
+                  style={{ fontSize: 16, marginBottom: '-4px' }}
+                />
+              }
+              trigger={['click']}
+            >
+              {field.value
+                ? getStatusLabel(field.value.toString())
+                : getStatusLabel(withdrawOpenData?.withdrawStatus)}
+            </Dropdown.Button>
           )}
         />
-        <S.WithdrawEditStatusFormFooter>
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={editingWithdrawLoading}
-            disabled={!isValid}
-          >
-            Editar Status
-          </Button>
-        </S.WithdrawEditStatusFormFooter>
+        <Button
+          type="primary"
+          htmlType="submit"
+          loading={editingWithdrawLoading}
+          disabled={!isValid}
+        >
+          Editar Status
+        </Button>
       </S.WithdrawEditStatusForm>
     </Modal>
   )
 }
+
+const getStatusLabel = (key: string): string | null => {
+  const item: any = items.find((item) => item.key === key)
+  return item ? item.label : null
+}
+
+const items: MenuProps['items'] = [
+  {
+    key: 'pending',
+    label: 'Pendente'
+  },
+  {
+    key: 'concluded',
+    label: 'Concluído'
+  },
+  {
+    key: 'finished',
+    label: 'Cancelado'
+  }
+]

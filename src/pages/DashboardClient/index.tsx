@@ -33,6 +33,8 @@ import {
 import type { MenuProps } from 'antd'
 import { handleRequestWithdraw } from '@/firebase/client'
 import { formatCurrency } from '@/utils/functions/formatCurrency'
+import { IWithdraw } from '@/@types/Admin'
+import { timestampToDate } from '@/utils/functions/convertTimestamp'
 
 const DashboardClient = () => {
   const { token } = theme.useToken()
@@ -219,14 +221,14 @@ const DashboardClient = () => {
           })}
         </S.MainMenu>
         <S.BottomMenu>
-          {/* <Button
+          <Button
             onClick={() => {
               showWithdrawHistoricModal()
               setIsMenuMobileOpen(false)
             }}
           >
             Histórico de saques
-          </Button> */}
+          </Button>
           <Button danger style={{ width: '100%' }} onClick={handleLogout}>
             Sair
           </Button>
@@ -414,11 +416,6 @@ interface IWithdrawModal {
   handleModalClose: () => void
 }
 
-interface IWithdraw {
-  withdrawUsdt: string
-  withdrawAmount: number
-}
-
 const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
   const { token } = theme.useToken()
 
@@ -560,6 +557,8 @@ const WithdrawHistoricModal = ({
 }: IWithdrawHistoricModal) => {
   const { token } = theme.useToken()
 
+  const { userData } = useClientAuth()
+
   return (
     <Modal
       title="Histórico de saques"
@@ -594,50 +593,55 @@ const WithdrawHistoricModal = ({
           </S.WithdrawLine>
         </S.WithdrawHistoricHeader>
         <S.WithdrawHistoricContent>
-          <S.WithdrawHistoric
-            style={{
-              backgroundColor: token.colorBgContainer,
-              border: `1px solid ${token.colorBorderSecondary}`
-            }}
-          >
-            <S.WithdrawLine>R$ 5.600</S.WithdrawLine>
-            <S.WithdrawLine>10/10/2023</S.WithdrawLine>
-            <S.WithdrawLine>
-              <S.WithdrawHistoricLabel type="concluded">
-                Concluído
-              </S.WithdrawHistoricLabel>
-            </S.WithdrawLine>
-          </S.WithdrawHistoric>
-          <S.WithdrawHistoric
-            style={{
-              backgroundColor: token.colorBgContainer,
-              border: `1px solid ${token.colorBorderSecondary}`
-            }}
-          >
-            <S.WithdrawLine>R$ 10.900</S.WithdrawLine>
-            <S.WithdrawLine>10/10/2023</S.WithdrawLine>
-            <S.WithdrawLine>
-              <S.WithdrawHistoricLabel type="pending">
-                Pendente
-              </S.WithdrawHistoricLabel>
-            </S.WithdrawLine>
-          </S.WithdrawHistoric>
-          <S.WithdrawHistoric
-            style={{
-              backgroundColor: token.colorBgContainer,
-              border: `1px solid ${token.colorBorderSecondary}`
-            }}
-          >
-            <S.WithdrawLine>R$ 7.400</S.WithdrawLine>
-            <S.WithdrawLine>10/10/2023</S.WithdrawLine>
-            <S.WithdrawLine>
-              <S.WithdrawHistoricLabel type="finished">
-                Cancelado
-              </S.WithdrawHistoricLabel>
-            </S.WithdrawLine>
-          </S.WithdrawHistoric>
+          {userData?.userAffiliateWithdraws ? (
+            userData.userAffiliateWithdraws?.map((withdraw: IWithdraw) => (
+              <S.WithdrawHistoric
+                key={withdraw.withdrawId}
+                style={{
+                  backgroundColor: token.colorBgContainer,
+                  border: `1px solid ${token.colorBorderSecondary}`
+                }}
+              >
+                <S.WithdrawLine>
+                  {formatCurrency(withdraw?.withdrawAmount)}
+                </S.WithdrawLine>
+                <S.WithdrawLine>
+                  {timestampToDate(withdraw?.withdrawRegisteredAt)}
+                </S.WithdrawLine>
+                <S.WithdrawLine>
+                  <S.WithdrawHistoricLabel type={withdraw?.withdrawStatus}>
+                    {getStatusLabel(withdraw?.withdrawStatus)}
+                  </S.WithdrawHistoricLabel>
+                </S.WithdrawLine>
+              </S.WithdrawHistoric>
+            ))
+          ) : (
+            <S.EmptyWithdraws style={{ color: token.colorTextDisabled }}>
+              Nenhum saque realizado
+            </S.EmptyWithdraws>
+          )}
         </S.WithdrawHistoricContent>
       </S.WithdrawHistoricWrapper>
     </Modal>
   )
 }
+
+const getStatusLabel = (key: string): string | null => {
+  const item: any = items.find((item) => item.key === key)
+  return item ? item.label : null
+}
+
+const items: MenuProps['items'] = [
+  {
+    key: 'pending',
+    label: 'Pendente'
+  },
+  {
+    key: 'concluded',
+    label: 'Concluído'
+  },
+  {
+    key: 'finished',
+    label: 'Cancelado'
+  }
+]

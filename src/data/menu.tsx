@@ -54,13 +54,13 @@ const privateAffiliateMenuData = [
     menuDisabled: false,
     menuDanger: false
   },
-  // {
-  //   menuId: 'withdraw-historic',
-  //   menuLabel: 'Histórico de saques',
-  //   menuIcon: <IoReceiptOutline />,
-  //   menuDisabled: false,
-  //   menuDanger: false
-  // },
+  {
+    menuId: 'withdraw-historic',
+    menuLabel: 'Histórico de saques',
+    menuIcon: <IoReceiptOutline />,
+    menuDisabled: false,
+    menuDanger: false
+  },
   {
     menuId: 'sair',
     menuLabel: 'Sair',

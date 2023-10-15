@@ -412,6 +412,16 @@ export const WithdrawHistoricContent = styled.div`
   height: 360px;
 `
 
+export const EmptyWithdraws = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 5px 0;
+
+  font-size: 13px;
+  line-height: 13px;
+  font-weight: 400;
+`
+
 export const WithdrawHistoric = styled.div`
   display: flex;
   align-items: center;
