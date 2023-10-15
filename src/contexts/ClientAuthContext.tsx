@@ -31,6 +31,7 @@ interface ClientAuthContextData {
   userBalance: any
   mediasList: IMedia[] | null
   agreementList: IAgreement[] | null
+  withdrawAvailability: any
 
   handleLogout: () => void
 }
@@ -166,6 +167,37 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
     return saldo
   }, [userData, formattedTotal])
 
+  const withdrawAvailability = useMemo(() => {
+    if (!userData) return {}
+    if (!userData?.userAffiliateWithdraws)
+      return { available: true, daysRemaining: 0 }
+
+    const withdraws = userData?.userAffiliateWithdraws
+
+    const now = Date.now()
+    const lastWithdraw =
+      withdraws.length > 0 ? withdraws[withdraws.length - 1] : null
+
+    if (!lastWithdraw) {
+      return { available: true, daysRemaining: 0 }
+    }
+
+    const lastWithdrawDate = lastWithdraw.withdrawRegisteredAt
+    const timeDifference = now - lastWithdrawDate
+    const daysRemaining = Math.ceil(
+      (7 * 24 * 60 * 60 * 1000 - timeDifference) / (24 * 60 * 60 * 1000)
+    )
+
+    return {
+      available: daysRemaining <= 0,
+      daysRemaining: daysRemaining > 0 ? daysRemaining : 0
+    }
+  }, [userData])
+
+  useEffect(() => {
+    console.log(withdrawAvailability)
+  }, [withdrawAvailability])
+
   const ClientAuthContextValues = useMemo(() => {
     return {
       userId,
@@ -177,7 +209,8 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
       labels,
       userBalance,
       mediasList,
-      agreementList
+      agreementList,
+      withdrawAvailability
     }
   }, [
     userId,
@@ -189,7 +222,8 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
     labels,
     userBalance,
     mediasList,
-    agreementList
+    agreementList,
+    withdrawAvailability
   ])
 
   return (

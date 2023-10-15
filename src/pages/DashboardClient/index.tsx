@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import * as S from './styles'
 
@@ -282,7 +282,8 @@ const UserMenu = ({
   const { token } = theme.useToken()
 
   const navigate = useNavigate()
-  const { handleLogout, userData, userBalance } = useClientAuth()
+  const { handleLogout, userData, userBalance, withdrawAvailability } =
+    useClientAuth()
 
   // -----------------------------------------------------
 
@@ -384,7 +385,6 @@ const UserMenu = ({
             <button
               style={{
                 backgroundColor: token.colorBgContainer,
-                // border: `1px solid ${token.colorBorderSecondary}`,
                 color: token.colorPrimary
               }}
             >
@@ -413,8 +413,10 @@ const UserMenu = ({
       </Dropdown>
 
       <WithdrawModal
+        userData={userData}
         isModalOpen={isWithdrawModalOpen}
         handleModalClose={handleWithdrawModalClose}
+        withdrawAvailability={withdrawAvailability}
       />
 
       <WithdrawHistoricModal
@@ -428,11 +430,18 @@ const UserMenu = ({
 // =========================================== WITHDRAW
 
 interface IWithdrawModal {
+  userData: any
   isModalOpen: boolean
   handleModalClose: () => void
+  withdrawAvailability: any
 }
 
-const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
+const WithdrawModal = ({
+  userData,
+  isModalOpen,
+  handleModalClose,
+  withdrawAvailability
+}: IWithdrawModal) => {
   const { token } = theme.useToken()
 
   const { userId, userBalance } = useClientAuth()
@@ -448,7 +457,7 @@ const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
 
   const { isValid } = formState
 
-  const handleCreateUser = async (data: IWithdraw) => {
+  const handleCreateWithdraw = async (data: IWithdraw) => {
     setIsWithdrawLoading(true)
 
     if (!userId) {
@@ -498,18 +507,31 @@ const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
       onCancel={handleModalClose}
       footer={null}
       destroyOnClose
+      afterClose={() => {
+        reset()
+        handleModalClose()
+      }}
     >
       <S.WithdrawForm
         layout="vertical"
-        onFinish={handleSubmit(handleCreateUser)}
+        onFinish={handleSubmit(handleCreateWithdraw)}
       >
-        <S.WithdrawAvailable>
-          <p>Disponível para saque:</p>
-          <b>{formatCurrency(userBalance)}</b>
-        </S.WithdrawAvailable>
+        <S.WithdrawAvailableWrapper>
+          <S.WithdrawAvailable>
+            <p>Disponível para saque:</p>
+            <b>{formatCurrency(userBalance)}</b>
+          </S.WithdrawAvailable>
+          {!withdrawAvailability?.available && (
+            <S.WithdrawAvailableAlert>
+              <p>Saque bloqueado, liberado em:</p>
+              <b>{withdrawAvailability?.daysRemaining} dias</b>
+            </S.WithdrawAvailableAlert>
+          )}
+        </S.WithdrawAvailableWrapper>
         <Form.Item label="Chave USDT TRC20">
           <Controller
             name="withdrawUsdt"
+            defaultValue={userData?.userUsdtKey || ''}
             control={control}
             rules={{ required: 'Este campo é obrigatório' }}
             render={({ field }) => (
@@ -521,7 +543,7 @@ const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
                     display: 'flex',
                     width: 'fit-content',
                     fontSize: 12,
-                    margin: '8px 0 -15px auto',
+                    margin: '8px 0 -20px auto',
                     color: token.colorPrimary
                   }}
                 >
@@ -553,7 +575,7 @@ const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
             type="primary"
             htmlType="submit"
             loading={isWithdrawLoading}
-            disabled={!isValid}
+            disabled={!isValid || !withdrawAvailability.available}
           >
             Solicitar
           </Button>

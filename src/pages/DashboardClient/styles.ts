@@ -364,11 +364,18 @@ export const UserMenuName = styled.p`
 export const WithdrawForm = styled(Form)`
   display: flex;
   flex-direction: column;
-  row-gap: 15px;
+  row-gap: 10px;
 
   .ant-form-item {
     margin-bottom: 0px;
   }
+`
+
+export const WithdrawAvailableWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  margin-bottom: 10px;
 `
 
 export const WithdrawAvailable = styled.div`
@@ -382,6 +389,19 @@ export const WithdrawAvailable = styled.div`
 
   background-color: rgba(112, 220, 73, 0.4);
   border: 1px solid rgba(112, 220, 73, 0.8);
+`
+
+export const WithdrawAvailableAlert = styled.div`
+  display: flex;
+  justify-content: space-between;
+  border-radius: 8px;
+  padding: 14px 12px;
+
+  font-size: 14px;
+  line-height: 14px;
+
+  background-color: rgba(220, 73, 73, 0.4);
+  border: 1px solid rgba(220, 73, 73, 0.8);
 `
 
 export const WithdrawFormFooter = styled.div`

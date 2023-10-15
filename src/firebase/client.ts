@@ -39,6 +39,7 @@ const handleRequestWithdraw = async ({
       withdrawRegisteredAt: Date.now()
     }
 
+    userData.userUsdtKey = withdrawUsdt
     userData.userAffiliateWithdraws.push(withdrawData)
 
     await userAccountsRef.set(userData)

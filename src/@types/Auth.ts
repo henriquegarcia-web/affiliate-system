@@ -28,4 +28,5 @@ export interface IUserData {
   userAffiliateWithdraws?: any
   userBlocked: boolean
   userAgreement: string
+  userUsdtKey: string
 }
