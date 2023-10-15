@@ -6,8 +6,13 @@ import { IoSearchSharp } from 'react-icons/io5'
 
 import ClipboardJS from 'clipboard'
 
+import { useClientAuth } from '@/contexts/ClientAuthContext'
+import { ILink } from '@/@types/Admin'
+
 const LinksView = () => {
   const { token } = theme.useToken()
+
+  const { userData } = useClientAuth()
 
   return (
     <S.LinksView>
@@ -44,14 +49,15 @@ const LinksView = () => {
               <S.LinkLine>Nome do link</S.LinkLine>
             </S.LinkWrapperHeader>
             <S.LinkWrapperContent>
-              <Link
-                linkTitle="Link da Homepage"
-                linkUrl="https://www.youtube.com/"
-              />
-              <Link
-                linkTitle="Link da Homepage do Cassino"
-                linkUrl="https://www.youtube.com/"
-              />
+              {userData?.userAffiliateLinks ? (
+                userData?.userAffiliateLinks?.map((link: ILink) => (
+                  <Link key={link.linkId} link={link} />
+                ))
+              ) : (
+                <S.EmptyLinks style={{ color: token.colorTextDescription }}>
+                  Não há links registrados
+                </S.EmptyLinks>
+              )}
             </S.LinkWrapperContent>
           </S.LinkWrapper>
         </G.ViewContent>
@@ -64,12 +70,11 @@ export default LinksView
 
 // =====================================================
 
-interface ILink {
-  linkTitle: string
-  linkUrl: string
+interface ILinkItem {
+  link: ILink
 }
 
-const Link = ({ linkTitle, linkUrl }: ILink) => {
+const Link = ({ link }: ILinkItem) => {
   const { token } = theme.useToken()
 
   const handleCopyLink = () => {
@@ -105,14 +110,14 @@ const Link = ({ linkTitle, linkUrl }: ILink) => {
           className="link"
           type="primary"
           size="small"
-          data-clipboard-text={linkUrl}
+          data-clipboard-text={link.linkUrl}
           onClick={handleCopyLink}
         >
           Copiar Link
         </Button>
       </S.LinkLine>
       <S.LinkLine>
-        <p>{linkTitle}</p>
+        <p>{link.linkLabel}</p>
       </S.LinkLine>
     </S.Link>
   )

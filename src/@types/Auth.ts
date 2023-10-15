@@ -25,4 +25,5 @@ export interface IUserData {
   userRegisteredAt: number
   userAffiliateLinks?: any
   userAffiliateComission?: any
+  userAffiliateWithdraws?: any
 }

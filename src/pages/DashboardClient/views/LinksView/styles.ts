@@ -50,6 +50,18 @@ export const LinkWrapperContent = styled.div`
   height: calc(100% - ${linkWrapperHeader});
 `
 
+export const EmptyLinks = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: calc(100% - ${linkWrapperHeader});
+
+  font-size: 14px;
+  line-height: 14px;
+  font-weight: 400;
+`
+
 export const Link = styled.div`
   display: flex;
   justify-content: space-between;

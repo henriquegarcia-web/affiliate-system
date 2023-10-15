@@ -15,6 +15,7 @@ import {
   Spin,
   Tooltip,
   Typography,
+  message,
   theme
 } from 'antd'
 
@@ -30,6 +31,8 @@ import {
   privateAffiliateMenuData
 } from '@/data/menu'
 import type { MenuProps } from 'antd'
+import { handleRequestWithdraw } from '@/firebase/client'
+import { formatCurrency } from '@/utils/functions/formatCurrency'
 
 const DashboardClient = () => {
   const { token } = theme.useToken()
@@ -216,14 +219,14 @@ const DashboardClient = () => {
           })}
         </S.MainMenu>
         <S.BottomMenu>
-          <Button
+          {/* <Button
             onClick={() => {
               showWithdrawHistoricModal()
               setIsMenuMobileOpen(false)
             }}
           >
             Histórico de saques
-          </Button>
+          </Button> */}
           <Button danger style={{ width: '100%' }} onClick={handleLogout}>
             Sair
           </Button>
@@ -261,7 +264,7 @@ const UserMenu = ({
   const { token } = theme.useToken()
 
   const navigate = useNavigate()
-  const { handleLogout, userData } = useClientAuth()
+  const { handleLogout, userData, userBalance } = useClientAuth()
 
   // -----------------------------------------------------
 
@@ -289,7 +292,7 @@ const UserMenu = ({
             closeMenuMobile()
           }}
         >
-          <p>R$ 1.500,00</p>
+          <p>{formatCurrency(userBalance)}</p>
           <button
             style={{
               backgroundColor: token.colorBgContainer,
@@ -359,7 +362,7 @@ const UserMenu = ({
               closeMenuMobile()
             }}
           >
-            <p>R$ 1.500,00</p>
+            <p>{formatCurrency(userBalance)}</p>
             <button
               style={{
                 backgroundColor: token.colorBgContainer,
@@ -412,11 +415,14 @@ interface IWithdrawModal {
 }
 
 interface IWithdraw {
-  usdtKey: string
+  withdrawUsdt: string
+  withdrawAmount: number
 }
 
 const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
   const { token } = theme.useToken()
+
+  const { userId, userBalance } = useClientAuth()
 
   const [isWithdrawLoading, setIsWithdrawLoading] = useState(false)
 
@@ -427,15 +433,43 @@ const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
   const handleCreateUser = async (data: IWithdraw) => {
     setIsWithdrawLoading(true)
 
-    // const signupAdminResponse = await handleCreateUserAccount({
-    // })
+    if (!userId) {
+      setIsWithdrawLoading(false)
+      return
+    }
+
+    if (data.withdrawAmount <= 0) {
+      message.open({
+        type: 'error',
+        content: 'Valor de saque inválido'
+      })
+
+      setIsWithdrawLoading(false)
+      return
+    }
+
+    if (data.withdrawAmount > userBalance) {
+      message.open({
+        type: 'error',
+        content: 'Saldo insuficiente para saque'
+      })
+
+      setIsWithdrawLoading(false)
+      return
+    }
+
+    const withdrawResponse = await handleRequestWithdraw({
+      userId: userId,
+      withdrawUsdt: data.withdrawUsdt,
+      withdrawAmount: data.withdrawAmount
+    })
 
     setIsWithdrawLoading(false)
 
-    // if (signupAdminResponse) {
-    //   reset()
-    //   handleModalClose()
-    // }
+    if (withdrawResponse) {
+      reset()
+      handleModalClose()
+    }
   }
 
   return (
@@ -453,17 +487,17 @@ const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
       >
         <S.WithdrawAvailable>
           <p>Disponível para saque:</p>
-          <b>R$ 1.500,00</b>
+          <b>{formatCurrency(userBalance)}</b>
         </S.WithdrawAvailable>
         <Form.Item label="Chave USDT">
           <Controller
-            name="usdtKey"
+            name="withdrawUsdt"
             control={control}
             rules={{ required: 'Este campo é obrigatório' }}
             render={({ field }) => (
               <>
                 <Input {...field} placeholder="Digite sua chave USDT" />
-                <Tooltip title="Clique para ver o vídeo de como obter a chave USDT">
+                {/* <Tooltip title="Clique para ver o vídeo de como obter a chave USDT">
                   <Typography.Link
                     href="#API"
                     style={{
@@ -477,7 +511,24 @@ const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
                   >
                     Precisa de ajuda?
                   </Typography.Link>
-                </Tooltip>
+                </Tooltip> */}
+              </>
+            )}
+          />
+        </Form.Item>
+        <Form.Item label="Valor do saque">
+          <Controller
+            name="withdrawAmount"
+            control={control}
+            rules={{ required: 'Este campo é obrigatório' }}
+            render={({ field }) => (
+              <>
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  placeholder="Digite o valor que deseja sacar"
+                />
               </>
             )}
           />

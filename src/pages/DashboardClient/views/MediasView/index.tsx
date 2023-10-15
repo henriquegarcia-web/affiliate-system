@@ -44,14 +44,15 @@ const MediasView = () => {
               <S.LinkLine>Nome do link</S.LinkLine>
             </S.LinkWrapperHeader>
             <S.LinkWrapperContent>
-              <Link
-                linkTitle="Pasta de arquivos no Google Drive"
-                linkUrl="https://www.youtube.com/"
-              />
-              <Link
-                linkTitle="Canal no YouTube de treinamentos"
-                linkUrl="https://www.youtube.com/"
-              />
+              {/* {userData?.userAffiliateLinks ? (
+                userData?.userAffiliateLinks?.map((link: ILink) => (
+                  <Link key={link.linkId} link={link} />
+                ))
+              ) : (
+                <S.EmptyLinks style={{ color: token.colorTextDescription }}>
+                  Não há links registrados
+                </S.EmptyLinks>
+              )} */}
             </S.LinkWrapperContent>
           </S.LinkWrapper>
         </G.ViewContent>

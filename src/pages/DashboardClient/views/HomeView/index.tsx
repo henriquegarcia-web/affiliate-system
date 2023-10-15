@@ -14,7 +14,9 @@ import {
   Legend
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
-import { faker } from '@faker-js/faker'
+import { useClientAuth } from '@/contexts/ClientAuthContext'
+import { useMemo } from 'react'
+import { formatCurrency } from '@/utils/functions/formatCurrency'
 
 ChartJS.register(
   CategoryScale,
@@ -40,18 +42,11 @@ export const options = {
   }
 }
 
-const labels = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho'
-]
-
 const HomeView = () => {
   const { token } = theme.useToken()
+
+  const { userData, labels, formattedComissions, formattedTotal, userBalance } =
+    useClientAuth()
 
   return (
     <S.HomeView>
@@ -64,21 +59,55 @@ const HomeView = () => {
         >
           <S.AnalyticWrapper>
             <S.AnalyticWrapperScroll>
-              <Chart
+              {/* <Chart
                 headerLabel="Disponível para saque"
                 chartLabel="Disponível"
                 headerValue="R$ 500,00"
               />
-              <Chart headerLabel="CPA" chartLabel="CPA" headerValue="10" />
+              <Chart headerLabel="CPA" chartLabel="CPA" headerValue="10" /> */}
+              <S.AnalyticHeader
+                style={{
+                  backgroundColor: token.colorBgLayout,
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                  color: token.colorTextBase
+                }}
+              >
+                <p style={{ color: token.colorTextSecondary }}>
+                  Disponível para saque:{' '}
+                  <b style={{ color: token.colorPrimary }}>
+                    {formatCurrency(userBalance)}
+                  </b>
+                </p>
+              </S.AnalyticHeader>
+              {/* <S.AnalyticHeader
+                style={{
+                  backgroundColor: token.colorBgLayout,
+                  border: `1px solid ${token.colorBorderSecondary}`,
+                  color: token.colorTextBase
+                }}
+              >
+                <p style={{ color: token.colorTextSecondary }}>
+                  CPA esse mês:{' '}
+                  <b style={{ color: token.colorPrimary }}>{'userBalance'}</b>
+                </p>
+              </S.AnalyticHeader> */}
               <Chart
                 headerLabel="Total faturado"
                 chartLabel="Faturado"
-                headerValue="R$ 1.000,00"
+                headerValue={formatCurrency(formattedTotal?.totalFaturadoAnual)}
+                charLabels={labels}
+                chartData={labels?.map(
+                  (mes) => formattedComissions[mes]?.totalFaturado
+                )}
               />
               <Chart
                 headerLabel="CPA Total"
                 chartLabel="CPA Total"
-                headerValue="20"
+                headerValue={formattedTotal?.totalComissaoAnual?.toString()}
+                charLabels={labels}
+                chartData={labels?.map(
+                  (mes) => formattedComissions[mes]?.totalComissao
+                )}
               />
             </S.AnalyticWrapperScroll>
           </S.AnalyticWrapper>
@@ -96,17 +125,25 @@ interface IChart {
   headerLabel: string
   headerValue: string
   chartLabel: string
+  charLabels?: any
+  chartData?: any
 }
 
-const Chart = ({ headerLabel, headerValue, chartLabel }: IChart) => {
+const Chart = ({
+  headerLabel,
+  headerValue,
+  chartLabel,
+  charLabels,
+  chartData
+}: IChart) => {
   const { token } = theme.useToken()
 
   const data = {
-    labels,
+    labels: charLabels,
     datasets: [
       {
         label: chartLabel,
-        data: labels.map(() => faker.datatype.number({ min: 0, max: 2000 })),
+        data: chartData,
         borderColor: '#70dc49',
         backgroundColor: 'rgba(112, 220, 73, 0.5)',
         borderWidth: 2

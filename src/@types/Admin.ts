@@ -19,3 +19,10 @@ export interface IComission {
   comissionValue: number
   comissionRegisteredAt: number
 }
+
+export interface IWithdraw {
+  withdrawId: string
+  withdrawUsdt: string
+  withdrawAmount: number
+  withdrawStatus: 'concluded' | 'pending' | 'finished'
+}
