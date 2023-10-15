@@ -4,6 +4,7 @@ import { message } from 'antd'
 
 import { IUserData } from '@/@types/Auth'
 import {
+  IAgreement,
   IAuthenticatedUser,
   IComission,
   ILink,
@@ -574,6 +575,155 @@ const handleGetAllMediaLinks = (
   return offCallback
 }
 
+// ============================================= AGREEMENTS
+
+interface IAddAgreement {
+  agreementCta: number
+  agreementLabel: string
+}
+
+const handleAddAgreement = async ({
+  agreementCta,
+  agreementLabel
+}: IAddAgreement) => {
+  try {
+    const agreementsRef = firebase.database().ref('application/agreements')
+
+    const newMediaRef = agreementsRef.push()
+
+    const mediaData: IAgreement = {
+      agreementId: newMediaRef.key,
+      agreementCta,
+      agreementLabel
+    }
+
+    await newMediaRef.set(mediaData)
+
+    message.open({
+      type: 'success',
+      content: 'Acordo criado com sucesso'
+    })
+
+    return true
+  } catch (error) {
+    message.open({
+      type: 'error',
+      content: 'Erro ao criar acordo'
+    })
+    return false
+  }
+}
+
+const handleDeleteAgreement = async (agreementId: string) => {
+  try {
+    const agreementsRef = firebase.database().ref('application/agreements')
+
+    const userAccountsRef = firebase.database().ref('userAccounts')
+    const userQuery = userAccountsRef
+      .orderByChild('userAgreement')
+      .equalTo(agreementId)
+    const userQuerySnapshot = await userQuery.get()
+
+    if (userQuerySnapshot.exists()) {
+      message.open({
+        type: 'error',
+        content:
+          'Este acordo está associado a pelo menos um usuário e não pode ser excluído'
+      })
+      return false
+    }
+
+    const mediaToDeleteRef = agreementsRef.child(agreementId)
+    await mediaToDeleteRef.remove()
+
+    message.open({
+      type: 'success',
+      content: 'Acordo deletado com sucesso'
+    })
+
+    return true
+  } catch (error) {
+    message.open({
+      type: 'error',
+      content: 'Falha ao deletar acordo'
+    })
+
+    return false
+  }
+}
+
+const handleGetAllAgreements = (
+  callback: (agreements: IAgreement[] | null) => void
+) => {
+  const agreementsRef = firebase.database().ref('application/agreements')
+
+  const listener = (snapshot: any) => {
+    try {
+      if (snapshot && snapshot.exists()) {
+        const agreementsData = snapshot.val()
+        const allMediaLinks: IAgreement[] = []
+
+        for (const mediaId in agreementsData) {
+          const mediaData: IAgreement = agreementsData[mediaId]
+          allMediaLinks.push(mediaData)
+        }
+
+        callback(allMediaLinks)
+      } else {
+        callback([])
+      }
+    } catch (error) {
+      message.open({
+        type: 'error',
+        content: 'Falha ao obter os acordos'
+      })
+    }
+  }
+
+  const offCallback = () => {
+    agreementsRef.off('value', listener)
+  }
+
+  agreementsRef.on('value', listener)
+
+  return offCallback
+}
+
+interface IUpdateUserAgreement {
+  userId: string
+  agreementId: string
+}
+
+const handleUpdateUserAgreement = async ({
+  userId,
+  agreementId
+}: IUpdateUserAgreement) => {
+  try {
+    const userAccountsRef = firebase.database().ref('userAccounts/' + userId)
+
+    const snapshot = await userAccountsRef.once('value')
+    const userData = snapshot.val()
+
+    userData.userAgreement = agreementId
+
+    await userAccountsRef.set(userData)
+
+    message.open({
+      type: 'success',
+      content: 'Acordo do usuário atualizado com sucesso'
+    })
+
+    return true
+  } catch (error) {
+    message.open({
+      type: 'error',
+      content: 'Falha ao atualizar acordo do usuário'
+    })
+
+    return false
+  }
+}
+
 // ============================================== HANDLE BLOCK ACCOUNT
 
 interface IBlockUser {
@@ -731,5 +881,9 @@ export {
   handleGetAllWithdrawRequests,
   handleUpdateWithdrawStatus,
   handleBlockUser,
-  handleBlockAuthenticatedUser
+  handleBlockAuthenticatedUser,
+  handleAddAgreement,
+  handleDeleteAgreement,
+  handleGetAllAgreements,
+  handleUpdateUserAgreement
 }

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import * as S from './styles'
 import * as G from '@/utils/styles/globals'
@@ -7,10 +7,11 @@ import {
   IoSearchSharp,
   IoCloseCircleOutline,
   IoCheckmarkCircleOutline,
-  IoLink
+  IoLink,
+  IoChevronDownOutline
 } from 'react-icons/io5'
 
-import { Button, Input, Modal, Popconfirm, theme } from 'antd'
+import { Button, Dropdown, Input, Modal, Popconfirm, theme } from 'antd'
 
 import { Controller, useForm } from 'react-hook-form'
 
@@ -20,11 +21,13 @@ import {
   handleAddLinks,
   handleBlockUser,
   handleDeleteComission,
-  handleDeleteLink
+  handleDeleteLink,
+  handleUpdateUserAgreement
 } from '@/firebase/admin'
 import { IComission, ILink } from '@/@types/Admin'
 import { timestampToDate } from '@/utils/functions/convertTimestamp'
 import { IUserData } from '@/@types/Auth'
+import type { MenuProps } from 'antd'
 
 const UsersView = () => {
   const { token } = theme.useToken()
@@ -35,10 +38,13 @@ const UsersView = () => {
 
   const [isLinksModalOpen, setIsLinksModalOpen] = useState(false)
   const [isComissionModalOpen, setIsComissionModalOpen] = useState(false)
+  const [isAgreementModalOpen, setIsAgreementModalOpen] = useState(false)
 
   const [userSelected, setUserSelected] = useState(null)
 
   const handleSearch = (value: string) => setUsersSearch(value)
+
+  // ------------------------------------------------ LINKS MODAL
 
   const showLinksModal = (userData: any) => {
     setIsLinksModalOpen(true)
@@ -49,12 +55,25 @@ const UsersView = () => {
     setUserSelected(null)
   }
 
+  // ------------------------------------------------ COMISSION MODAL
+
   const showComissionModal = (userData: any) => {
     setIsComissionModalOpen(true)
     setUserSelected(userData)
   }
   const handleComissionModalClose = () => {
     setIsComissionModalOpen(false)
+    setUserSelected(null)
+  }
+
+  // ------------------------------------------------ AGREEMENT MODAL
+
+  const showAgreementModal = (userData: any) => {
+    setIsAgreementModalOpen(true)
+    setUserSelected(userData)
+  }
+  const handleAgreementModalClose = () => {
+    setIsAgreementModalOpen(false)
     setUserSelected(null)
   }
 
@@ -102,6 +121,7 @@ const UsersView = () => {
                   affiliate={affiliate}
                   showLinksModal={showLinksModal}
                   showComissionModal={showComissionModal}
+                  showAgreementModal={showAgreementModal}
                 />
               ))
             ) : (
@@ -123,6 +143,11 @@ const UsersView = () => {
         isModalOpen={isComissionModalOpen}
         handleModalClose={handleComissionModalClose}
       />
+      <UpdateAgreementModal
+        userSelected={userSelected}
+        isModalOpen={isAgreementModalOpen}
+        handleModalClose={handleAgreementModalClose}
+      />
     </S.UsersView>
   )
 }
@@ -135,10 +160,18 @@ interface IUser {
   affiliate: IUserData
   showLinksModal: (affiliate: IUserData) => void
   showComissionModal: (affiliate: IUserData) => void
+  showAgreementModal: (affiliate: IUserData) => void
 }
 
-const User = ({ affiliate, showLinksModal, showComissionModal }: IUser) => {
+const User = ({
+  affiliate,
+  showLinksModal,
+  showComissionModal,
+  showAgreementModal
+}: IUser) => {
   const { token } = theme.useToken()
+
+  const { agreementList } = useAdminAuth()
 
   const handleBlockAffiliate = async () => {
     const blockUserResponse = await handleBlockUser({
@@ -156,6 +189,20 @@ const User = ({ affiliate, showLinksModal, showComissionModal }: IUser) => {
     })
   }
 
+  const formattedAgreements: any[] = useMemo(() => {
+    return (
+      agreementList?.map((item) => ({
+        key: item.agreementId,
+        label: item.agreementLabel
+      })) || []
+    )
+  }, [agreementList])
+
+  const getAgreementLabel = (key: string): string | null => {
+    const item: any = formattedAgreements.find((item) => item.key === key)
+    return item ? item.label : null
+  }
+
   return (
     <S.User
       style={{
@@ -166,12 +213,18 @@ const User = ({ affiliate, showLinksModal, showComissionModal }: IUser) => {
     >
       <p>
         <b>{affiliate.userName}</b> / {affiliate.userEmail}
-        {affiliate.userBlocked && <span>Bloqueado</span>}
+        {affiliate?.userAgreement && (
+          <span className="agreement">
+            {getAgreementLabel(affiliate?.userAgreement)}
+          </span>
+        )}
+        {affiliate.userBlocked && <span className="blocked">Bloqueado</span>}
       </p>
 
       <span>
         <Button onClick={() => showLinksModal(affiliate)}>Links</Button>
         <Button onClick={() => showComissionModal(affiliate)}>Comissão</Button>
+        <Button onClick={() => showAgreementModal(affiliate)}>Acordo</Button>
 
         {affiliate.userBlocked ? (
           <Button
@@ -524,5 +577,112 @@ const Comission = ({ link, handleDeleteComission }: IComissionItem) => {
         </Popconfirm>
       </span>
     </S.Comission>
+  )
+}
+
+// ======================================================= AGREEMENTS MODAL
+
+interface IUpdateAgreement {
+  agreementId: string
+}
+
+interface IUpdateAgreementModal {
+  userSelected: any
+  isModalOpen: boolean
+  handleModalClose: () => void
+}
+
+const UpdateAgreementModal = ({
+  userSelected,
+  isModalOpen,
+  handleModalClose
+}: IUpdateAgreementModal) => {
+  const { token } = theme.useToken()
+
+  const { agreementList } = useAdminAuth()
+
+  const [updatingAgreementLoading, setUpdatingAgreementLoading] =
+    useState(false)
+
+  const { control, handleSubmit, reset, formState } =
+    useForm<IUpdateAgreement>()
+
+  const { isValid } = formState
+
+  const handleUpdateAgreement = async (data: IUpdateAgreement) => {
+    setUpdatingAgreementLoading(true)
+
+    const updateAgreementResponse = await handleUpdateUserAgreement({
+      userId: userSelected.userId,
+      agreementId: data.agreementId
+    })
+
+    setUpdatingAgreementLoading(false)
+
+    if (updateAgreementResponse) {
+      reset()
+      handleModalClose()
+    }
+  }
+
+  const formattedAgreements: any[] = useMemo(() => {
+    return (
+      agreementList?.map((item) => ({
+        key: item.agreementId,
+        label: item.agreementLabel
+      })) || []
+    )
+  }, [agreementList])
+
+  const getAgreementLabel = (key: string): string | null => {
+    const item: any = formattedAgreements.find((item) => item.key === key)
+    return item ? item.label : null
+  }
+
+  return (
+    <Modal
+      title="Acordo do afiliado"
+      open={isModalOpen}
+      onOk={handleModalClose}
+      onCancel={handleModalClose}
+      footer={null}
+      destroyOnClose
+      afterClose={handleModalClose}
+    >
+      <S.UpdateAgreementForm onSubmit={handleSubmit(handleUpdateAgreement)}>
+        <Controller
+          name="agreementId"
+          control={control}
+          rules={{ required: 'Este campo é obrigatório' }}
+          render={({ field }) => (
+            <Dropdown.Button
+              menu={{
+                items: formattedAgreements,
+                onClick: (e) => field.onChange(e.key),
+                style: { width: '100%' }
+              }}
+              icon={
+                <IoChevronDownOutline
+                  style={{ fontSize: 16, marginBottom: '-4px' }}
+                />
+              }
+              trigger={['click']}
+            >
+              {field.value
+                ? getAgreementLabel(field.value.toString())
+                : getAgreementLabel(userSelected?.userAgreement)}
+            </Dropdown.Button>
+          )}
+        />
+        <Button
+          type="primary"
+          htmlType="submit"
+          loading={updatingAgreementLoading}
+          disabled={!isValid}
+        >
+          Editar Acordo
+        </Button>
+      </S.UpdateAgreementForm>
+    </Modal>
   )
 }

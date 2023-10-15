@@ -162,7 +162,8 @@ const handleSignupUser = async ({
         userAffiliateLinks: [],
         userAffiliateComission: [],
         userAffiliateWithdraws: [],
-        userBlocked: false
+        userBlocked: false,
+        userAgreement: ''
       }
 
       const userDataResponse = await createUserAccount(userData)

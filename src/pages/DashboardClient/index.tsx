@@ -39,7 +39,7 @@ import { IWithdraw } from '@/@types/Admin'
 const DashboardClient = () => {
   const { token } = theme.useToken()
 
-  const { handleLogout, userData } = useClientAuth()
+  const { handleLogout, userData, agreementList } = useClientAuth()
 
   const [menuId, setMenuId] = useState(affiliateMenuData[0].menuId)
   const [isMenuMobileOpen, setIsMenuMobileOpen] = useState(false)
@@ -71,6 +71,20 @@ const DashboardClient = () => {
       <>View naão encontrada</>
     )
   }, [menuId])
+
+  const formattedAgreements: any[] = useMemo(() => {
+    return (
+      agreementList?.map((item) => ({
+        key: item.agreementId,
+        label: item.agreementLabel
+      })) || []
+    )
+  }, [agreementList])
+
+  const getAgreementLabel = (key: string): string | null => {
+    const item: any = formattedAgreements.find((item) => item.key === key)
+    return item ? item.label : null
+  }
 
   useClickOutside({
     active: isMenuMobileOpen,
@@ -109,7 +123,8 @@ const DashboardClient = () => {
             </S.UserInfosName>
             <S.UserInfosEmail>{userData?.userEmail}</S.UserInfosEmail>
             <span>
-              <p>Seu acordo:</p> <b>CPA R$ 60</b>
+              <p>Seu acordo:</p>
+              <b>{getAgreementLabel(userData?.userAgreement)}</b>
             </span>
           </S.DashboardMenuUserInfos>
 
@@ -193,7 +208,8 @@ const DashboardClient = () => {
           </S.UserInfosName>
           <S.UserInfosEmail>{userData?.userEmail}</S.UserInfosEmail>
           <span>
-            <p>Seu acordo:</p> <b>CPA R$ 60</b>
+            <p>Seu acordo:</p>
+            <b>{getAgreementLabel(userData?.userAgreement)}</b>
           </span>
         </S.DashboardMenuUserInfos>
         <S.MainMenu>

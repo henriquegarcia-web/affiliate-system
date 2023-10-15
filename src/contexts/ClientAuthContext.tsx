@@ -13,10 +13,13 @@ import React, {
 
 import firebase from '@/firebase/firebase'
 import { handleGetUserData, handleLogoutUser } from '@/firebase/auth'
-import { handleGetAllMediaLinks } from '@/firebase/admin'
+import {
+  handleGetAllAgreements,
+  handleGetAllMediaLinks
+} from '@/firebase/admin'
 
 import { IUserData } from '@/@types/Auth'
-import { IMedia } from '@/@types/Admin'
+import { IAgreement, IMedia } from '@/@types/Admin'
 
 interface ClientAuthContextData {
   userId: string | null
@@ -27,6 +30,7 @@ interface ClientAuthContextData {
   labels: any
   userBalance: any
   mediasList: IMedia[] | null
+  agreementList: IAgreement[] | null
 
   handleLogout: () => void
 }
@@ -44,6 +48,7 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userData, setUserData] = useState<IUserData | null>(null)
 
   const [mediasList, setMediasList] = useState<IMedia[] | null>(null)
+  const [agreementList, setAgreementList] = useState<IAgreement[] | null>(null)
 
   const isClientLogged = useMemo(() => {
     return !!userId
@@ -102,11 +107,33 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
+  useEffect(() => {
+    const unsubscribe = handleGetAllAgreements((agreements) => {
+      setAgreementList(agreements)
+    })
+
+    if (unsubscribe) {
+      return () => {
+        unsubscribe()
+      }
+    }
+  }, [])
+
   // =================================================================
 
   const formattedComissions: any = useMemo(() => {
-    return formatarComissoes(userData?.userAffiliateComission) || {}
-  }, [userData])
+    if (!agreementList || !userData) return {}
+
+    const item: any = agreementList.find(
+      (item) => item.agreementId === userData?.userAgreement
+    )
+
+    const agreementValue = item.agreementCta
+
+    return (
+      formatarComissoes(userData?.userAffiliateComission, agreementValue) || {}
+    )
+  }, [agreementList, userData])
 
   const formattedTotal: any = useMemo(() => {
     return somarTotaisAnuais(formattedComissions) || {}
@@ -149,7 +176,8 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
       formattedTotal,
       labels,
       userBalance,
-      mediasList
+      mediasList,
+      agreementList
     }
   }, [
     userId,
@@ -160,7 +188,8 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
     formattedTotal,
     labels,
     userBalance,
-    mediasList
+    mediasList,
+    agreementList
   ])
 
   return (
@@ -181,7 +210,7 @@ function useClientAuth(): ClientAuthContextData {
 
 export { ClientAuthProvider, useClientAuth }
 
-function formatarComissoes(comissoes) {
+function formatarComissoes(comissoes, agreementValue) {
   if (!comissoes) return
 
   const comissoesFormatadas = {}
@@ -199,7 +228,7 @@ function formatarComissoes(comissoes) {
 
     const valorComissao = parseFloat(comissao.comissionValue)
     comissoesFormatadas[mesAno].totalComissao += valorComissao
-    comissoesFormatadas[mesAno].totalFaturado += valorComissao * 60
+    comissoesFormatadas[mesAno].totalFaturado += valorComissao * agreementValue
   })
 
   const mesesComValores = Object.keys(comissoesFormatadas)

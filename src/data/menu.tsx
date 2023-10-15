@@ -5,6 +5,7 @@ import MediasView from '@/pages/DashboardClient/views/MediasView'
 import UsersView from '@/pages/DashboardAdmin/views/UsersView'
 import AccessView from '@/pages/DashboardAdmin/views/AccessView'
 import WithdrawView from '@/pages/DashboardAdmin/views/WithdrawView'
+import AgreementsView from '@/pages/DashboardAdmin/views/AgreementsView'
 import AdminMediasView from '@/pages/DashboardAdmin/views/AdminMediasView'
 
 import {
@@ -16,7 +17,8 @@ import {
   IoReceiptOutline,
   IoPersonAddOutline,
   IoPeopleOutline,
-  IoFileTrayFullOutline
+  IoFileTrayFullOutline,
+  IoPricetagsOutline
 } from 'react-icons/io5'
 
 export interface IMenuData {
@@ -89,6 +91,12 @@ const adminMenuData = [
     menuLabel: 'Mídias/Banners',
     menuIcon: <IoFolderOpenOutline />,
     menuComponent: <AdminMediasView />
+  },
+  {
+    menuId: 'menu_agreements',
+    menuLabel: 'Acordos',
+    menuIcon: <IoPricetagsOutline />,
+    menuComponent: <AgreementsView />
   },
   {
     menuId: 'menu_access',

@@ -50,7 +50,23 @@ export const User = styled.div`
       font-weight: 500;
     }
 
-    span {
+    span.agreement {
+      display: flex;
+      width: fit-content;
+      height: fit-content;
+      padding: 4px 6px 3px 6px;
+      border-radius: 4px;
+      margin-left: 5px;
+
+      font-size: 12px;
+      line-height: 12px;
+
+      color: rgba(112, 220, 73, 1);
+      background-color: rgba(112, 220, 73, 0.2);
+      border: 1px solid rgba(112, 220, 73, 0.8);
+    }
+
+    span.blocked {
       display: flex;
       width: fit-content;
       height: fit-content;
@@ -220,5 +236,16 @@ export const Comission = styled.div`
 
   button {
     font-size: 12px !important;
+  }
+`
+
+// =========================================== AGREEMENT
+
+export const UpdateAgreementForm = styled.form`
+  display: flex;
+  column-gap: 5px;
+
+  .ant-btn-compact-first-item {
+    flex: 1 !important;
   }
 `

@@ -18,11 +18,17 @@ import {
   handleGetAllUsers,
   handleGetAllAuthenticatedUsers,
   handleGetAllWithdrawRequests,
-  handleGetAllMediaLinks
+  handleGetAllMediaLinks,
+  handleGetAllAgreements
 } from '@/firebase/admin'
 
 import { IUserData } from '@/@types/Auth'
-import { IAuthenticatedUser, IMedia, IWithdraw } from '@/@types/Admin'
+import {
+  IAgreement,
+  IAuthenticatedUser,
+  IMedia,
+  IWithdraw
+} from '@/@types/Admin'
 
 interface AdminAuthContextData {
   userId: string | null
@@ -31,11 +37,10 @@ interface AdminAuthContextData {
   authenticatedUsersList: IAuthenticatedUser[] | null
   withdrawsList: IWithdraw[] | null
   mediasList: IMedia[] | null
+  agreementList: IAgreement[] | null
   isAdminLogged: boolean
-  isDeletingClientAccount: boolean
 
   handleLogout: () => void
-  handleDeleteClientAccount: (adminPassword: string) => Promise<boolean>
 }
 
 // ===================================================================
@@ -56,17 +61,11 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
   >(null)
   const [withdrawsList, setWithdrawsList] = useState<IWithdraw[] | null>(null)
   const [mediasList, setMediasList] = useState<IMedia[] | null>(null)
-
-  const [isDeletingClientAccount, setIsDeletingClientAccount] =
-    useState<boolean>(false)
+  const [agreementList, setAgreementList] = useState<IAgreement[] | null>(null)
 
   const isAdminLogged = useMemo(() => {
     return !!userId
   }, [userId])
-
-  // useEffect(() => {
-  //   console.log(authenticatedUsersList)
-  // }, [authenticatedUsersList])
 
   // -----------------------------------------------------------------
 
@@ -77,26 +76,6 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUserId(null)
     setUserData(null)
   }, [])
-
-  const handleDeleteClientAccount = useCallback(
-    async (adminPassword: string) => {
-      setIsDeletingClientAccount(true)
-
-      // const deleteAccountResponse = await handleDeleteAdminAccount(
-      //   adminPassword
-      // )
-
-      setIsDeletingClientAccount(false)
-
-      // if (deleteAccountResponse) {
-      //   setUserId(null)
-      //   setUserData(null)
-      //   return true
-      // }
-      return false
-    },
-    []
-  )
 
   // -----------------------------------------------------------------
 
@@ -179,37 +158,42 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
-  // =================================================================
+  useEffect(() => {
+    const unsubscribe = handleGetAllAgreements((agreements) => {
+      setAgreementList(agreements)
+    })
 
-  // useEffect(() => {
-  //   console.log('LOGADO ======>', isAdminLogged, userId)
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [isAdminLogged])
+    if (unsubscribe) {
+      return () => {
+        unsubscribe()
+      }
+    }
+  }, [])
+
+  // =================================================================
 
   const AdminAuthContextValues = useMemo(() => {
     return {
       userId,
       userData,
       isAdminLogged,
-      isDeletingClientAccount,
       handleLogout,
-      handleDeleteClientAccount,
       affiliatesList,
       authenticatedUsersList,
       withdrawsList,
-      mediasList
+      mediasList,
+      agreementList
     }
   }, [
     userId,
     userData,
     isAdminLogged,
-    isDeletingClientAccount,
     handleLogout,
-    handleDeleteClientAccount,
     affiliatesList,
     authenticatedUsersList,
     withdrawsList,
-    mediasList
+    mediasList,
+    agreementList
   ])
 
   return (

@@ -36,3 +36,9 @@ export interface IMedia {
   mediaUrl: string
   mediaLabel: string
 }
+
+export interface IAgreement {
+  agreementId: string
+  agreementCta: number
+  agreementLabel: string
+}
