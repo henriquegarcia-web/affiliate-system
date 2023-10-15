@@ -6,7 +6,8 @@ import * as G from '@/utils/styles/globals'
 import {
   IoSearchSharp,
   IoCloseCircleOutline,
-  IoCheckmarkCircleOutline
+  IoCheckmarkCircleOutline,
+  IoLink
 } from 'react-icons/io5'
 
 import { Button, Input, Modal, Popconfirm, theme } from 'antd'
@@ -330,16 +331,26 @@ const Link = ({ link, handleDeleteLink }: ILinkItem) => {
         color: token.colorTextSecondary
       }}
     >
-      <Button type="primary" size="small">
-        Ver Link
-      </Button>
+      <Popconfirm
+        placement="topLeft"
+        title={link.linkLabel}
+        description={link.linkUrl}
+        onConfirm={() => {}}
+        okText="Ok"
+        showCancel={false}
+        icon={
+          <S.LinkIcon>
+            <IoLink />
+          </S.LinkIcon>
+        }
+      >
+        <Button type="primary" size="small">
+          Ver Link
+        </Button>
+      </Popconfirm>
       <p>{link.linkLabel}</p>
 
       <span>
-        {/* <Button
-          size="small"
-          icon={<IoCreateOutline style={{ fontSize: 16, marginLeft: '4px' }} />}
-        /> */}
         <Popconfirm
           title="Deletar link"
           description="Você tem certeza que deseja excluir esse link?"

@@ -85,6 +85,23 @@ export const LinksList = styled.div`
 
 // =========================================== LINK
 
+export const LinkIcon = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  margin-right: 6px;
+
+  background-color: rgba(112, 220, 73, 0.6);
+
+  svg {
+    font-size: 14px;
+    color: white;
+  }
+`
+
 export const EmptyLink = styled.div`
   display: flex;
   justify-content: center;

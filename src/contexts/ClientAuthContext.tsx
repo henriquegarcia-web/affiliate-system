@@ -130,10 +130,9 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!userData?.userAffiliateWithdraws)
       return formattedTotal.totalFaturadoAnual
 
-    const totalWithdraws = userData?.userAffiliateWithdraws?.reduce(
-      (acc, withdraw) => acc + parseFloat(withdraw.withdrawAmount),
-      0
-    )
+    const totalWithdraws = userData?.userAffiliateWithdraws
+      .filter((withdraw) => withdraw.withdrawStatus !== 'finished')
+      .reduce((acc, withdraw) => acc + parseFloat(withdraw.withdrawAmount), 0)
 
     const saldo = formattedTotal.totalFaturadoAnual - totalWithdraws
 

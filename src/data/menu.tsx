@@ -85,16 +85,16 @@ const adminMenuData = [
     menuComponent: <WithdrawView />
   },
   {
-    menuId: 'menu_access',
-    menuLabel: 'Acessos',
-    menuIcon: <IoPersonAddOutline />,
-    menuComponent: <AccessView />
-  },
-  {
     menuId: 'menu_medias',
     menuLabel: 'Mídias/Banners',
     menuIcon: <IoFolderOpenOutline />,
     menuComponent: <AdminMediasView />
+  },
+  {
+    menuId: 'menu_access',
+    menuLabel: 'Acessos',
+    menuIcon: <IoPersonAddOutline />,
+    menuComponent: <AccessView />
   }
 ]
 

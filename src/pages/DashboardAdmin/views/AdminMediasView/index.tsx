@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import * as S from './styles'
 import * as G from '@/utils/styles/globals'
-import { IoSearchSharp, IoCloseCircleOutline } from 'react-icons/io5'
+import { IoSearchSharp, IoCloseCircleOutline, IoLink } from 'react-icons/io5'
 
 import { Button, Input, Modal, Popconfirm, theme } from 'antd'
 
@@ -131,15 +131,28 @@ const Link = ({ media, handleDeleteLink }: ILinkItem) => {
       }}
     >
       <S.LinkLine>
-        <Button
-          className="link"
-          type="primary"
-          size="small"
-          data-clipboard-text={media.mediaUrl}
-          // onClick={handleCopyLink}
+        <Popconfirm
+          placement="topLeft"
+          title={media.mediaLabel}
+          description={media.mediaUrl}
+          onConfirm={() => {}}
+          okText="Ok"
+          showCancel={false}
+          icon={
+            <S.LinkIcon>
+              <IoLink />
+            </S.LinkIcon>
+          }
         >
-          Ver Link
-        </Button>
+          <Button
+            className="link"
+            type="primary"
+            size="small"
+            data-clipboard-text={media.mediaUrl}
+          >
+            Ver Link
+          </Button>
+        </Popconfirm>
       </S.LinkLine>
       <S.LinkLine>
         <p>{media.mediaLabel}</p>
