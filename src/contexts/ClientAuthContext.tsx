@@ -87,16 +87,16 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // =================================================================
 
-  const formattedComissions = useMemo(() => {
+  const formattedComissions: any = useMemo(() => {
     return formatarComissoes(userData?.userAffiliateComission) || {}
   }, [userData])
 
-  const formattedTotal = useMemo(() => {
+  const formattedTotal: any = useMemo(() => {
     return somarTotaisAnuais(formattedComissions) || {}
   }, [formattedComissions])
 
   const dadosOrdenados = Object.entries(formattedComissions)?.map(
-    ([mes, dados]) => ({
+    ([mes, dados]: any) => ({
       mes,
       totalFaturado: dados.totalFaturado,
       totalComissao: dados.totalComissao
