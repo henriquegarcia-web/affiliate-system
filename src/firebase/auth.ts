@@ -78,8 +78,10 @@ const handleSignupUser = async ({
   try {
     // ----------------------------------
 
+    console.log('aqui entrou')
+
     const authenticatedUsersRef = firebase.database().ref('authenticatedUsers')
-    const userAccountsRef = firebase.database().ref('usersAccounts')
+    const userAccountsRef = firebase.database().ref('userAccounts')
 
     const userAuthenticationQuery = authenticatedUsersRef
       .orderByChild('userEmail')
@@ -109,8 +111,12 @@ const handleSignupUser = async ({
       return false
     }
 
+    console.log('aqui entrou')
+
     const userAuthenticatedData = userAuthenticationQuerySnapshot.val()
     const userId = Object.keys(userAuthenticatedData)[0]
+
+    console.log(userAuthenticatedData, userId)
 
     const { userName } = userAuthenticatedData[userId]
 
@@ -168,7 +174,7 @@ const handleSignupUser = async ({
 
     message.open({
       type: 'error',
-      content: 'Erro ao realizar cadastro'
+      content: 'Erro ao realizar cadastro 1'
     })
     return false
   } catch (error: any) {
