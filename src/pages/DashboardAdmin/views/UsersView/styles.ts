@@ -1,3 +1,4 @@
+import { responsiveMobile, responsiveTablet } from '@/utils/styles/globals'
 import styled from 'styled-components'
 
 export const UsersView = styled.main`
@@ -64,11 +65,32 @@ export const User = styled.div`
       background-color: rgba(220, 73, 73, 0.2);
       border: 1px solid rgba(220, 73, 73, 0.8);
     }
+
+    @media screen and (max-width: ${responsiveTablet}) {
+      flex-direction: column;
+      align-items: flex-start;
+      row-gap: 6px;
+
+      span {
+        margin-left: 0;
+      }
+    }
   }
 
   span {
     display: flex;
     column-gap: 6px;
+  }
+
+  @media screen and (max-width: ${responsiveMobile}) {
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 15px;
+
+    span {
+      width: 100%;
+      justify-content: space-between;
+    }
   }
 `
 
