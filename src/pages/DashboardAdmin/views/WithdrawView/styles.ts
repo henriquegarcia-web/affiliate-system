@@ -9,7 +9,7 @@ export const WithdrawView = styled.main`
   padding: 10px;
 `
 
-export const WithdrawWrapper = styled.main`
+export const WithdrawWrapper = styled.div`
   display: flex;
   flex-direction: column;
   row-gap: 8px;
@@ -40,4 +40,28 @@ export const Withdraw = styled.div`
     display: flex;
     column-gap: 6px;
   }
+`
+
+export const WithdrawDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  width: 100%;
+  height: fit-content;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+`
+
+export const WithdrawEditStatusForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  width: 100%;
+  height: fit-content;
+`
+
+export const WithdrawEditStatusFormFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
 `

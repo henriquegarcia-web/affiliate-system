@@ -35,7 +35,8 @@ const handleRequestWithdraw = async ({
       withdrawId: userAccountsRef.push().key,
       withdrawUsdt,
       withdrawAmount,
-      withdrawStatus: 'pending'
+      withdrawStatus: 'pending',
+      withdrawRegisteredAt: Date.now()
     }
 
     userData.userAffiliateWithdraws.push(withdrawData)

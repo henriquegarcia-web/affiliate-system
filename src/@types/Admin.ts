@@ -1,3 +1,5 @@
+import { IUserData } from './Auth'
+
 // ====================== TYPES ====================== //
 
 // ==================== INTERFACES =================== //
@@ -25,4 +27,6 @@ export interface IWithdraw {
   withdrawUsdt: string
   withdrawAmount: number
   withdrawStatus: 'concluded' | 'pending' | 'finished'
+  withdrawUser?: IUserData
+  withdrawRegisteredAt?: number
 }

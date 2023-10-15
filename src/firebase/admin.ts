@@ -126,7 +126,14 @@ const handleGetAllWithdrawRequests = (
 
           if ('userAffiliateWithdraws' in userData) {
             const withdraws: IWithdraw[] = userData.userAffiliateWithdraws
-            allWithdrawRequests.push(...withdraws)
+
+            for (const withdraw of withdraws) {
+              const withdrawWithUserData: IWithdraw = {
+                ...withdraw,
+                withdrawUser: userData
+              }
+              allWithdrawRequests.push(withdrawWithUserData)
+            }
           }
         }
 
@@ -149,6 +156,74 @@ const handleGetAllWithdrawRequests = (
   userAccountsRef.on('value', listener)
 
   return offCallback
+}
+
+// ============================================= UPDATE WITHDRAW REQUEST
+
+interface IUpdateWithdrawStatus {
+  withdrawId: string
+  newStatus: string
+}
+
+const handleUpdateWithdrawStatus = async ({
+  withdrawId,
+  newStatus
+}: IUpdateWithdrawStatus) => {
+  try {
+    const userAccountsRef = firebase.database().ref('userAccounts')
+
+    let targetUser: any
+    let targetWithdrawIndex: number = -1
+
+    const snapshot = await userAccountsRef.once('value')
+    const userAccountsData = snapshot.val()
+
+    if (!userAccountsData) {
+      throw new Error('Não foi possível encontrar os dados do usuário')
+    }
+
+    for (const userId in userAccountsData) {
+      const userData = userAccountsData[userId]
+
+      if ('userAffiliateWithdraws' in userData) {
+        const withdraws: IWithdraw[] = userData.userAffiliateWithdraws
+
+        for (let i = 0; i < withdraws.length; i++) {
+          if (withdraws[i].withdrawId === withdrawId) {
+            targetUser = userData
+            targetWithdrawIndex = i
+            break
+          }
+        }
+
+        if (targetWithdrawIndex !== -1) {
+          break
+        }
+      }
+    }
+
+    if (!targetUser) {
+      throw new Error('Solicitação de saque não encontrada')
+    }
+
+    targetUser.userAffiliateWithdraws[targetWithdrawIndex].withdrawStatus =
+      newStatus
+
+    await userAccountsRef.child(targetUser.userId).set(targetUser)
+
+    message.open({
+      type: 'success',
+      content: 'Status da solicitação de saque atualizado com sucesso'
+    })
+
+    return true
+  } catch (error) {
+    message.open({
+      type: 'error',
+      content: 'Erro ao atualizar o status da solicitação de saque'
+    })
+    return false
+  }
 }
 
 // ============================================= LINKS
@@ -409,5 +484,6 @@ export {
   handleDeleteComission,
   handleGetAllUsers,
   handleGetAllAuthenticatedUsers,
-  handleGetAllWithdrawRequests
+  handleGetAllWithdrawRequests,
+  handleUpdateWithdrawStatus
 }
