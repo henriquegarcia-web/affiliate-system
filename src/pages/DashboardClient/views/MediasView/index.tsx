@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react'
+
 import * as S from './styles'
 import * as G from '@/utils/styles/globals'
 import { IoOpenOutline, IoSearchSharp } from 'react-icons/io5'
@@ -13,6 +15,21 @@ const MediasView = () => {
   const { token } = theme.useToken()
 
   const { mediasList } = useClientAuth()
+
+  const [mediasSearch, setMediasSearch] = useState('')
+
+  const handleSearch = (value: string) => setMediasSearch(value)
+
+  const filteredMedias = useMemo(() => {
+    if (!mediasSearch) {
+      return mediasList
+    }
+
+    return mediasList.filter((media) => {
+      const objectAsString = JSON.stringify(media).toLowerCase()
+      return objectAsString.includes(mediasSearch.toLowerCase())
+    })
+  }, [mediasList, mediasSearch])
 
   return (
     <S.MediasView>
@@ -30,6 +47,8 @@ const MediasView = () => {
                 <IoSearchSharp style={{ fontSize: 16, marginBottom: '-3px' }} />
               }
               placeholder="Pesquise aqui..."
+              onChange={(e) => handleSearch(e.target.value)}
+              value={mediasSearch}
             />
           </S.SearchInput>
         </G.ViewHeader>
@@ -50,7 +69,7 @@ const MediasView = () => {
             </S.LinkWrapperHeader>
             <S.LinkWrapperContent>
               {mediasList?.length > 0 ? (
-                mediasList?.map((media: IMedia) => (
+                filteredMedias?.map((media: IMedia) => (
                   <Link key={media.mediaId} media={media} />
                 ))
               ) : (
@@ -115,7 +134,7 @@ const Link = ({ media }: ILinkItem) => {
           data-clipboard-text={media.mediaUrl}
           onClick={handleCopyLink}
         >
-          Ver Link
+          Copiar Link
         </Button>
       </S.LinkLine>
       <S.LinkLine>

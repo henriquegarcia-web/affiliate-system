@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react'
+
 import * as S from './styles'
 import * as G from '@/utils/styles/globals'
 
@@ -13,6 +15,21 @@ const LinksView = () => {
   const { token } = theme.useToken()
 
   const { userData } = useClientAuth()
+
+  const [linksSearch, setLinksSearch] = useState('')
+
+  const handleSearch = (value: string) => setLinksSearch(value)
+
+  const filteredLinks = useMemo(() => {
+    if (!linksSearch) {
+      return userData?.userAffiliateLinks
+    }
+
+    return userData?.userAffiliateLinks.filter((link) => {
+      const objectAsString = JSON.stringify(link).toLowerCase()
+      return objectAsString.includes(linksSearch.toLowerCase())
+    })
+  }, [userData, linksSearch])
 
   return (
     <S.LinksView>
@@ -30,6 +47,8 @@ const LinksView = () => {
                 <IoSearchSharp style={{ fontSize: 16, marginBottom: '-3px' }} />
               }
               placeholder="Pesquise aqui..."
+              onChange={(e) => handleSearch(e.target.value)}
+              value={linksSearch}
             />
           </S.SearchInput>
         </G.ViewHeader>
@@ -50,7 +69,7 @@ const LinksView = () => {
             </S.LinkWrapperHeader>
             <S.LinkWrapperContent>
               {userData?.userAffiliateLinks ? (
-                userData?.userAffiliateLinks?.map((link: ILink) => (
+                filteredLinks?.map((link: ILink) => (
                   <Link key={link.linkId} link={link} />
                 ))
               ) : (

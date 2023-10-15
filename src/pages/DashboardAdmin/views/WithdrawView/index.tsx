@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import * as S from './styles'
 import * as G from '@/utils/styles/globals'
@@ -27,10 +27,14 @@ const AccessView = () => {
 
   const { withdrawsList } = useAdminAuth()
 
+  const [withdrawSearch, setWithdrawSearch] = useState('')
+
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false)
   const [withdrawOpenData, setWithdrawOpenData] = useState<IWithdraw | null>(
     null
   )
+
+  const handleSearch = (value: string) => setWithdrawSearch(value)
 
   const showWithdrawModal = (withdraw: IWithdraw) => {
     setIsWithdrawModalOpen(true)
@@ -40,6 +44,17 @@ const AccessView = () => {
     setIsWithdrawModalOpen(false)
     setWithdrawOpenData(null)
   }
+
+  const filteredWithdraws = useMemo(() => {
+    if (!withdrawSearch) {
+      return withdrawsList
+    }
+
+    return withdrawsList.filter((withdraw) => {
+      const objectAsString = JSON.stringify(withdraw).toLowerCase()
+      return objectAsString.includes(withdrawSearch.toLowerCase())
+    })
+  }, [withdrawsList, withdrawSearch])
 
   return (
     <S.WithdrawView>
@@ -56,10 +71,9 @@ const AccessView = () => {
               <IoSearchSharp style={{ fontSize: 16, marginBottom: '-3px' }} />
             }
             placeholder="Pesquise aqui..."
+            onChange={(e) => handleSearch(e.target.value)}
+            value={withdrawSearch}
           />
-          {/* <Button type="default" onClick={showCreateModal}>
-            Novo acesso
-          </Button> */}
         </G.ViewHeader>
         <G.ViewContent
           style={{
@@ -80,13 +94,19 @@ const AccessView = () => {
               </S.WithdrawLine>
             </S.WithdrawHeader>
             <S.WithdrawWrapper>
-              {withdrawsList?.map((withdraw: IWithdraw) => (
-                <Withdraw
-                  key={withdraw.withdrawId}
-                  withdraw={withdraw}
-                  showWithdrawModal={showWithdrawModal}
-                />
-              ))}
+              {withdrawSearch?.length > 0 ? (
+                filteredWithdraws?.map((withdraw: IWithdraw) => (
+                  <Withdraw
+                    key={withdraw.withdrawId}
+                    withdraw={withdraw}
+                    showWithdrawModal={showWithdrawModal}
+                  />
+                ))
+              ) : (
+                <S.EmptyWithdraw style={{ color: token.colorTextDescription }}>
+                  Não há solicitações de saque
+                </S.EmptyWithdraw>
+              )}
             </S.WithdrawWrapper>
           </S.WithdrawList>
         </G.ViewContent>

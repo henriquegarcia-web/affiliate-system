@@ -34,6 +34,18 @@ export const CreateClientFormFooter = styled.div`
   margin-top: 5px;
 `
 
+export const EmptyAccess = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+
+  font-size: 14px;
+  line-height: 14px;
+  font-weight: 400;
+`
+
 export const User = styled.div`
   display: flex;
   justify-content: space-between;

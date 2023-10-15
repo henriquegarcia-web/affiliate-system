@@ -53,7 +53,7 @@ export const LinkWrapperContent = styled.div`
   height: calc(100% - ${linkWrapperHeader});
 `
 
-export const EmptyLinks = styled.div`
+export const EmptyMedias = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;

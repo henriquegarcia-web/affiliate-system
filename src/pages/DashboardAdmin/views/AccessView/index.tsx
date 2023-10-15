@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import * as S from './styles'
 import * as G from '@/utils/styles/globals'
@@ -20,10 +20,25 @@ const AccessView = () => {
 
   const { authenticatedUsersList } = useAdminAuth()
 
+  const [accessSearch, setAccessSearch] = useState('')
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const showCreateModal = () => setIsCreateModalOpen(true)
   const handleCreateModalClose = () => setIsCreateModalOpen(false)
+
+  const handleSearch = (value: string) => setAccessSearch(value)
+
+  const filteredAccess = useMemo(() => {
+    if (!accessSearch) {
+      return authenticatedUsersList
+    }
+
+    return authenticatedUsersList.filter((access) => {
+      const objectAsString = JSON.stringify(access).toLowerCase()
+      return objectAsString.includes(accessSearch.toLowerCase())
+    })
+  }, [authenticatedUsersList, accessSearch])
 
   return (
     <S.AccessView>
@@ -40,6 +55,8 @@ const AccessView = () => {
               <IoSearchSharp style={{ fontSize: 16, marginBottom: '-3px' }} />
             }
             placeholder="Pesquise aqui..."
+            onChange={(e) => handleSearch(e.target.value)}
+            value={accessSearch}
           />
           <Button type="default" onClick={showCreateModal}>
             Novo acesso
@@ -52,12 +69,18 @@ const AccessView = () => {
           }}
         >
           <S.AccessWrapper>
-            {authenticatedUsersList?.map((authenticatedUser) => (
-              <User
-                key={authenticatedUser.userEmail}
-                authenticatedUser={authenticatedUser}
-              />
-            ))}
+            {authenticatedUsersList?.length > 0 ? (
+              filteredAccess?.map((authenticatedUser) => (
+                <User
+                  key={authenticatedUser.userEmail}
+                  authenticatedUser={authenticatedUser}
+                />
+              ))
+            ) : (
+              <S.EmptyAccess style={{ color: token.colorTextDescription }}>
+                Não há acessos criados
+              </S.EmptyAccess>
+            )}
           </S.AccessWrapper>
         </G.ViewContent>
       </G.View>
@@ -94,8 +117,6 @@ const User = ({ authenticatedUser }: IUser) => {
       </p>
 
       <span>
-        {/* <Button onClick={showCreateModal}>Links</Button>
-        <Button onClick={showComissionModal}>Comissão</Button> */}
         <Button
           icon={
             <IoTrashBinOutline style={{ fontSize: 16, marginLeft: '7px' }} />

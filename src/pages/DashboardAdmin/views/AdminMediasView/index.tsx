@@ -1,37 +1,28 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import * as S from './styles'
 import * as G from '@/utils/styles/globals'
-import {
-  IoSearchSharp,
-  IoTrashBinOutline,
-  IoCreateOutline,
-  IoCloseCircleOutline
-} from 'react-icons/io5'
+import { IoSearchSharp, IoCloseCircleOutline } from 'react-icons/io5'
 
-import { Button, Dropdown, Form, Input, Modal, Popconfirm, theme } from 'antd'
+import { Button, Input, Modal, Popconfirm, theme } from 'antd'
 
 import { Controller, useForm } from 'react-hook-form'
 
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
-import {
-  handleAddMediaLink,
-  handleDeleteMediaLink,
-  handleUpdateWithdrawStatus
-} from '@/firebase/admin'
-
-import { timestampToDate } from '@/utils/functions/convertTimestamp'
-import { formatCurrency } from '@/utils/functions/formatCurrency'
+import { handleAddMediaLink, handleDeleteMediaLink } from '@/firebase/admin'
 
 import { IMedia } from '@/@types/Admin'
-import type { MenuProps } from 'antd'
 
 const AdminMediasView = () => {
   const { token } = theme.useToken()
 
   const { mediasList } = useAdminAuth()
 
+  const [mediasSearch, setMediasSearch] = useState('')
+
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false)
+
+  const handleSearch = (value: string) => setMediasSearch(value)
 
   const showMediaModal = () => setIsMediaModalOpen(true)
   const handleMediaModalClose = () => setIsMediaModalOpen(false)
@@ -43,6 +34,17 @@ const AdminMediasView = () => {
       handleMediaModalClose()
     }
   }
+
+  const filteredMedias = useMemo(() => {
+    if (!mediasSearch) {
+      return mediasList
+    }
+
+    return mediasList.filter((media) => {
+      const objectAsString = JSON.stringify(media).toLowerCase()
+      return objectAsString.includes(mediasSearch.toLowerCase())
+    })
+  }, [mediasList, mediasSearch])
 
   return (
     <S.AdminMediasView>
@@ -59,6 +61,8 @@ const AdminMediasView = () => {
               <IoSearchSharp style={{ fontSize: 16, marginBottom: '-3px' }} />
             }
             placeholder="Pesquise aqui..."
+            onChange={(e) => handleSearch(e.target.value)}
+            value={mediasSearch}
           />
           <Button type="default" onClick={showMediaModal}>
             Nova mídia
@@ -81,7 +85,7 @@ const AdminMediasView = () => {
             </S.LinkWrapperHeader>
             <S.LinkWrapperContent>
               {mediasList?.length > 0 ? (
-                mediasList?.map((media: IMedia) => (
+                filteredMedias?.map((media: IMedia) => (
                   <Link
                     key={media.mediaId}
                     media={media}
@@ -89,9 +93,9 @@ const AdminMediasView = () => {
                   />
                 ))
               ) : (
-                <S.EmptyLinks style={{ color: token.colorTextDescription }}>
+                <S.EmptyMedias style={{ color: token.colorTextDescription }}>
                   Não há links de mídia registrados
-                </S.EmptyLinks>
+                </S.EmptyMedias>
               )}
             </S.LinkWrapperContent>
           </S.LinkWrapper>

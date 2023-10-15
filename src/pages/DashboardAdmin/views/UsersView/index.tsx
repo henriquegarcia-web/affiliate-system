@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import * as S from './styles'
 import * as G from '@/utils/styles/globals'
@@ -29,10 +29,14 @@ const UsersView = () => {
 
   const { affiliatesList } = useAdminAuth()
 
+  const [usersSearch, setUsersSearch] = useState('')
+
   const [isLinksModalOpen, setIsLinksModalOpen] = useState(false)
   const [isComissionModalOpen, setIsComissionModalOpen] = useState(false)
 
   const [userSelected, setUserSelected] = useState(null)
+
+  const handleSearch = (value: string) => setUsersSearch(value)
 
   const showLinksModal = (userData: any) => {
     setIsLinksModalOpen(true)
@@ -52,7 +56,16 @@ const UsersView = () => {
     setUserSelected(null)
   }
 
-  const onSearch = (e: any) => console.log(e)
+  const filteredUsers = useMemo(() => {
+    if (!usersSearch) {
+      return affiliatesList
+    }
+
+    return affiliatesList.filter((withdraw) => {
+      const objectAsString = JSON.stringify(withdraw).toLowerCase()
+      return objectAsString.includes(usersSearch.toLowerCase())
+    })
+  }, [affiliatesList, usersSearch])
 
   return (
     <S.UsersView>
@@ -69,6 +82,8 @@ const UsersView = () => {
               <IoSearchSharp style={{ fontSize: 16, marginBottom: '-3px' }} />
             }
             placeholder="Pesquise aqui..."
+            onChange={(e) => handleSearch(e.target.value)}
+            value={usersSearch}
           />
         </G.ViewHeader>
         <G.ViewContent
@@ -78,14 +93,20 @@ const UsersView = () => {
           }}
         >
           <S.UsersWrapper>
-            {affiliatesList?.map((affiliate) => (
-              <User
-                key={affiliate.userId}
-                affiliate={affiliate}
-                showLinksModal={showLinksModal}
-                showComissionModal={showComissionModal}
-              />
-            ))}
+            {affiliatesList?.length > 0 ? (
+              filteredUsers?.map((affiliate) => (
+                <User
+                  key={affiliate.userId}
+                  affiliate={affiliate}
+                  showLinksModal={showLinksModal}
+                  showComissionModal={showComissionModal}
+                />
+              ))
+            ) : (
+              <S.EmptyUsers style={{ color: token.colorTextDescription }}>
+                Não há usuários criados
+              </S.EmptyUsers>
+            )}
           </S.UsersWrapper>
         </G.ViewContent>
       </G.View>

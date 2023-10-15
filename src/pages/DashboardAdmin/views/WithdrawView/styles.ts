@@ -42,6 +42,18 @@ export const WithdrawWrapper = styled.div`
   height: calc(100% - ${withdrawListHeader});
 `
 
+export const EmptyWithdraw = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: calc(100% - ${withdrawListHeader});
+
+  font-size: 14px;
+  line-height: 14px;
+  font-weight: 400;
+`
+
 export const WithdrawLine = styled.div`
   display: flex;
 
