@@ -30,3 +30,9 @@ export interface IWithdraw {
   withdrawUser?: IUserData
   withdrawRegisteredAt?: number
 }
+
+export interface IMedia {
+  mediaId: string
+  mediaUrl: string
+  mediaLabel: string
+}

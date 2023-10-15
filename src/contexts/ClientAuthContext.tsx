@@ -13,8 +13,10 @@ import React, {
 
 import firebase from '@/firebase/firebase'
 import { handleGetUserData, handleLogoutUser } from '@/firebase/auth'
+import { handleGetAllMediaLinks } from '@/firebase/admin'
 
 import { IUserData } from '@/@types/Auth'
+import { IMedia } from '@/@types/Admin'
 
 interface ClientAuthContextData {
   userId: string | null
@@ -24,6 +26,7 @@ interface ClientAuthContextData {
   formattedTotal: any
   labels: any
   userBalance: any
+  mediasList: IMedia[] | null
 
   handleLogout: () => void
 }
@@ -39,6 +42,8 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [userId, setUserId] = useState<string | null>(null)
   const [userData, setUserData] = useState<IUserData | null>(null)
+
+  const [mediasList, setMediasList] = useState<IMedia[] | null>(null)
 
   const isClientLogged = useMemo(() => {
     return !!userId
@@ -84,6 +89,18 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     }
   }, [userId])
+
+  useEffect(() => {
+    const unsubscribe = handleGetAllMediaLinks((medias) => {
+      setMediasList(medias)
+    })
+
+    if (unsubscribe) {
+      return () => {
+        unsubscribe()
+      }
+    }
+  }, [])
 
   // =================================================================
 
@@ -132,7 +149,8 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
       formattedComissions,
       formattedTotal,
       labels,
-      userBalance
+      userBalance,
+      mediasList
     }
   }, [
     userId,
@@ -142,7 +160,8 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
     formattedComissions,
     formattedTotal,
     labels,
-    userBalance
+    userBalance,
+    mediasList
   ])
 
   return (

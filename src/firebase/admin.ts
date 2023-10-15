@@ -7,6 +7,7 @@ import {
   IAuthenticatedUser,
   IComission,
   ILink,
+  IMedia,
   IWithdraw
 } from '@/@types/Admin'
 
@@ -475,6 +476,103 @@ const handleDeleteComission = async ({
   }
 }
 
+// ============================================= MEDIAS
+
+interface IAddMedia {
+  mediaUrl: string
+  mediaLabel: string
+}
+
+const handleAddMediaLink = async ({ mediaUrl, mediaLabel }: IAddMedia) => {
+  try {
+    const mediaLinksRef = firebase.database().ref('application/mediasLinks')
+
+    const newMediaRef = mediaLinksRef.push()
+
+    const mediaData: IMedia = {
+      mediaId: newMediaRef.key,
+      mediaUrl,
+      mediaLabel
+    }
+
+    await newMediaRef.set(mediaData)
+
+    message.open({
+      type: 'success',
+      content: 'Link de mídia criada com sucesso'
+    })
+
+    return true
+  } catch (error) {
+    message.open({
+      type: 'error',
+      content: 'Erro ao criar link de mídia'
+    })
+    return false
+  }
+}
+
+const handleDeleteMediaLink = async (mediaId: string) => {
+  try {
+    const mediaLinksRef = firebase.database().ref('application/mediasLinks')
+
+    const mediaToDeleteRef = mediaLinksRef.child(mediaId)
+
+    await mediaToDeleteRef.remove()
+
+    message.open({
+      type: 'success',
+      content: 'Link de mídia excluído com sucesso'
+    })
+
+    return true
+  } catch (error) {
+    message.open({
+      type: 'error',
+      content: 'Erro ao excluir o link de mídia'
+    })
+
+    return false
+  }
+}
+
+const handleGetAllMediaLinks = (
+  callback: (mediaLinks: IMedia[] | null) => void
+) => {
+  const mediaLinksRef = firebase.database().ref('application/mediasLinks')
+
+  const listener = (snapshot: any) => {
+    try {
+      if (snapshot && snapshot.exists()) {
+        const mediaLinksData = snapshot.val()
+        const allMediaLinks: IMedia[] = []
+
+        for (const mediaId in mediaLinksData) {
+          const mediaData: IMedia = mediaLinksData[mediaId]
+          allMediaLinks.push(mediaData)
+        }
+
+        callback(allMediaLinks)
+      } else {
+        callback([])
+      }
+    } catch (error) {
+      message.open({
+        type: 'error',
+        content: 'Falha ao obter links de mídia'
+      })
+    }
+  }
+
+  const offCallback = () => {
+    mediaLinksRef.off('value', listener)
+  }
+
+  mediaLinksRef.on('value', listener)
+
+  return offCallback
+}
+
 export {
   handleCreateAuthenticatedUser,
   handleAddLinks,
@@ -482,6 +580,9 @@ export {
   handleDeleteLink,
   handleAddComission,
   handleDeleteComission,
+  handleAddMediaLink,
+  handleDeleteMediaLink,
+  handleGetAllMediaLinks,
   handleGetAllUsers,
   handleGetAllAuthenticatedUsers,
   handleGetAllWithdrawRequests,

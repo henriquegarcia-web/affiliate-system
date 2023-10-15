@@ -1,23 +1,26 @@
-import { responsiveMobile } from '@/utils/styles/globals'
+// import { Form } from 'antd'
+
 import styled from 'styled-components'
 
 const linkWrapperHeader = '20px'
 
-export const MediasView = styled.main`
+export const AdminMediasView = styled.main`
   display: flex;
   width: 100%;
   height: 100%;
   padding: 10px;
 `
 
-export const SearchInput = styled.div`
+export const CreateMediaForm = styled.form`
   display: flex;
-  width: 100%;
-  max-width: 280px;
+  flex-direction: column;
+  row-gap: 5px;
+`
 
-  @media screen and (max-width: ${responsiveMobile}) {
-    max-width: 100%;
-  }
+export const CreateMediaFormFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 5px;
 `
 
 export const LinkWrapper = styled.div`
@@ -94,7 +97,7 @@ export const LinkLine = styled.div`
 
   p {
     font-size: 13px;
-    line-height: 15px;
+    line-height: 13px;
     font-weight: 400;
     text-transform: none;
 
@@ -109,22 +112,5 @@ export const LinkLine = styled.div`
 
   &:nth-of-type(2) {
     flex: 1;
-  }
-`
-
-export const OpenLink = styled.a`
-  display: flex;
-  padding: 2px;
-  cursor: pointer;
-
-  svg {
-    transition: 0.3s;
-    font-size: 18px;
-  }
-
-  &:hover {
-    svg {
-      color: white !important;
-    }
   }
 `

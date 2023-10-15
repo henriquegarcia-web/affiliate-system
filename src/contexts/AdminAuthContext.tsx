@@ -17,11 +17,12 @@ import { handleGetAdminData, handleLogoutUser } from '@/firebase/auth'
 import {
   handleGetAllUsers,
   handleGetAllAuthenticatedUsers,
-  handleGetAllWithdrawRequests
+  handleGetAllWithdrawRequests,
+  handleGetAllMediaLinks
 } from '@/firebase/admin'
 
 import { IUserData } from '@/@types/Auth'
-import { IAuthenticatedUser, IWithdraw } from '@/@types/Admin'
+import { IAuthenticatedUser, IMedia, IWithdraw } from '@/@types/Admin'
 
 interface AdminAuthContextData {
   userId: string | null
@@ -29,6 +30,7 @@ interface AdminAuthContextData {
   affiliatesList: IUserData[] | null
   authenticatedUsersList: IAuthenticatedUser[] | null
   withdrawsList: IWithdraw[] | null
+  mediasList: IMedia[] | null
   isAdminLogged: boolean
   isDeletingClientAccount: boolean
 
@@ -53,6 +55,7 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     IAuthenticatedUser[] | null
   >(null)
   const [withdrawsList, setWithdrawsList] = useState<IWithdraw[] | null>(null)
+  const [mediasList, setMediasList] = useState<IMedia[] | null>(null)
 
   const [isDeletingClientAccount, setIsDeletingClientAccount] =
     useState<boolean>(false)
@@ -164,6 +167,18 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
+  useEffect(() => {
+    const unsubscribe = handleGetAllMediaLinks((medias) => {
+      setMediasList(medias)
+    })
+
+    if (unsubscribe) {
+      return () => {
+        unsubscribe()
+      }
+    }
+  }, [])
+
   // =================================================================
 
   // useEffect(() => {
@@ -181,7 +196,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
       handleDeleteClientAccount,
       affiliatesList,
       authenticatedUsersList,
-      withdrawsList
+      withdrawsList,
+      mediasList
     }
   }, [
     userId,
@@ -192,7 +208,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     handleDeleteClientAccount,
     affiliatesList,
     authenticatedUsersList,
-    withdrawsList
+    withdrawsList,
+    mediasList
   ])
 
   return (

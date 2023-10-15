@@ -5,6 +5,7 @@ import MediasView from '@/pages/DashboardClient/views/MediasView'
 import UsersView from '@/pages/DashboardAdmin/views/UsersView'
 import AccessView from '@/pages/DashboardAdmin/views/AccessView'
 import WithdrawView from '@/pages/DashboardAdmin/views/WithdrawView'
+import AdminMediasView from '@/pages/DashboardAdmin/views/AdminMediasView'
 
 import {
   IoExitOutline,
@@ -88,6 +89,12 @@ const adminMenuData = [
     menuLabel: 'Acessos',
     menuIcon: <IoPersonAddOutline />,
     menuComponent: <AccessView />
+  },
+  {
+    menuId: 'menu_medias',
+    menuLabel: 'Mídias/Banners',
+    menuIcon: <IoFolderOpenOutline />,
+    menuComponent: <AdminMediasView />
   }
 ]
 

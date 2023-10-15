@@ -6,8 +6,13 @@ import { Button, Input, message, theme } from 'antd'
 
 import ClipboardJS from 'clipboard'
 
+import { useClientAuth } from '@/contexts/ClientAuthContext'
+import { IMedia } from '@/@types/Admin'
+
 const MediasView = () => {
   const { token } = theme.useToken()
+
+  const { mediasList } = useClientAuth()
 
   return (
     <S.MediasView>
@@ -44,15 +49,15 @@ const MediasView = () => {
               <S.LinkLine>Nome do link</S.LinkLine>
             </S.LinkWrapperHeader>
             <S.LinkWrapperContent>
-              {/* {userData?.userAffiliateLinks ? (
-                userData?.userAffiliateLinks?.map((link: ILink) => (
-                  <Link key={link.linkId} link={link} />
+              {mediasList?.length > 0 ? (
+                mediasList?.map((media: IMedia) => (
+                  <Link key={media.mediaId} media={media} />
                 ))
               ) : (
                 <S.EmptyLinks style={{ color: token.colorTextDescription }}>
-                  Não há links registrados
+                  Não há links de mídia registrados
                 </S.EmptyLinks>
-              )} */}
+              )}
             </S.LinkWrapperContent>
           </S.LinkWrapper>
         </G.ViewContent>
@@ -65,12 +70,13 @@ export default MediasView
 
 // =====================================================
 
-interface ILink {
-  linkTitle: string
-  linkUrl: string
+// ======================================================= MEDIA ITEM
+
+interface ILinkItem {
+  media: IMedia
 }
 
-const Link = ({ linkTitle, linkUrl }: ILink) => {
+const Link = ({ media }: ILinkItem) => {
   const { token } = theme.useToken()
 
   const handleCopyLink = () => {
@@ -106,24 +112,17 @@ const Link = ({ linkTitle, linkUrl }: ILink) => {
           className="link"
           type="primary"
           size="small"
-          data-clipboard-text={linkUrl}
+          data-clipboard-text={media.mediaUrl}
           onClick={handleCopyLink}
         >
-          Copiar Link
+          Ver Link
         </Button>
       </S.LinkLine>
       <S.LinkLine>
-        <p>{linkTitle}</p>
+        <p>{media.mediaLabel}</p>
       </S.LinkLine>
-      <S.LinkLine>
-        <S.OpenLink
-          href={linkUrl}
-          target="_blank"
-          style={{ color: token.colorTextSecondary }}
-        >
-          <IoOpenOutline />
-        </S.OpenLink>
-      </S.LinkLine>
+
+      <span></span>
     </S.Link>
   )
 }
