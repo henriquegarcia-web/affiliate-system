@@ -13,17 +13,20 @@ import {
   Input,
   Modal,
   Spin,
-  Tooltip,
   Typography,
   message,
   theme
 } from 'antd'
+import ReactPlayer from 'react-player'
 
 import { Controller, useForm } from 'react-hook-form'
 
 import { formatUsername } from '@/utils/functions/formatUsername'
 import { useClientAuth } from '@/contexts/ClientAuthContext'
 import useClickOutside from '@/hooks/useClickOutside'
+import { handleRequestWithdraw } from '@/firebase/client'
+import { formatCurrency } from '@/utils/functions/formatCurrency'
+import { timestampToDate } from '@/utils/functions/convertTimestamp'
 
 import {
   IMenuData,
@@ -31,10 +34,7 @@ import {
   privateAffiliateMenuData
 } from '@/data/menu'
 import type { MenuProps } from 'antd'
-import { handleRequestWithdraw } from '@/firebase/client'
-import { formatCurrency } from '@/utils/functions/formatCurrency'
 import { IWithdraw } from '@/@types/Admin'
-import { timestampToDate } from '@/utils/functions/convertTimestamp'
 
 const DashboardClient = () => {
   const { token } = theme.useToken()
@@ -423,6 +423,11 @@ const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
 
   const [isWithdrawLoading, setIsWithdrawLoading] = useState(false)
 
+  const [isWithdrawVideoModal, setIsWithdrawVideoModal] = useState(false)
+
+  const showWithdrawVideoModal = () => setIsWithdrawVideoModal(true)
+  const handleWithdrawVideoModalClose = () => setIsWithdrawVideoModal(false)
+
   const { control, handleSubmit, reset, formState } = useForm<IWithdraw>()
 
   const { isValid } = formState
@@ -486,29 +491,26 @@ const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
           <p>Disponível para saque:</p>
           <b>{formatCurrency(userBalance)}</b>
         </S.WithdrawAvailable>
-        <Form.Item label="Chave USDT">
+        <Form.Item label="Chave USDT TRC20">
           <Controller
             name="withdrawUsdt"
             control={control}
             rules={{ required: 'Este campo é obrigatório' }}
             render={({ field }) => (
               <>
-                <Input {...field} placeholder="Digite sua chave USDT" />
-                {/* <Tooltip title="Clique para ver o vídeo de como obter a chave USDT">
-                  <Typography.Link
-                    href="#API"
-                    style={{
-                      display: 'flex',
-                      width: 'fit-content',
-                      fontSize: 12,
-                      lineHeight: 2.5,
-                      margin: '0 0 10px auto',
-                      color: token.colorPrimary
-                    }}
-                  >
-                    Precisa de ajuda?
-                  </Typography.Link>
-                </Tooltip> */}
+                <Input {...field} placeholder="Digite sua chave USDT TRC20" />
+                <Typography
+                  onClick={showWithdrawVideoModal}
+                  style={{
+                    display: 'flex',
+                    width: 'fit-content',
+                    fontSize: 12,
+                    margin: '8px 0 -15px auto',
+                    color: token.colorPrimary
+                  }}
+                >
+                  Precisa de ajuda?
+                </Typography>
               </>
             )}
           />
@@ -541,6 +543,28 @@ const WithdrawModal = ({ isModalOpen, handleModalClose }: IWithdrawModal) => {
           </Button>
         </S.WithdrawFormFooter>
       </S.WithdrawForm>
+
+      <Modal
+        title="Como obter a chave USDT TRC20"
+        open={isWithdrawVideoModal}
+        onOk={handleWithdrawVideoModalClose}
+        onCancel={handleWithdrawVideoModalClose}
+        footer={null}
+        destroyOnClose
+      >
+        <ReactPlayer
+          url="/usdt_video.mp4"
+          playing={true}
+          controls={true}
+          width="100%"
+          height="60vh"
+          config={{
+            file: {
+              forceVideo: true
+            }
+          }}
+        />
+      </Modal>
     </Modal>
   )
 }

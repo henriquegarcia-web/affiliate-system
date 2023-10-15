@@ -109,6 +109,10 @@ export const LinkLine = styled.div`
 
   &:nth-of-type(2) {
     flex: 1;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `
 
