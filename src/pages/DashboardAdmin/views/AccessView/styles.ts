@@ -55,12 +55,32 @@ export const User = styled.div`
   cursor: pointer;
 
   p {
+    display: flex;
+    align-items: center;
+    column-gap: 4px;
+
     font-size: 14px;
     line-height: 14px;
     font-weight: 300;
 
     b {
       font-weight: 500;
+    }
+
+    span {
+      display: flex;
+      width: fit-content;
+      height: fit-content;
+      padding: 4px 6px 3px 6px;
+      border-radius: 4px;
+      margin-left: 5px;
+
+      font-size: 12px;
+      line-height: 12px;
+
+      color: rgba(220, 73, 73, 1);
+      background-color: rgba(220, 73, 73, 0.2);
+      border: 1px solid rgba(220, 73, 73, 0.8);
     }
   }
 

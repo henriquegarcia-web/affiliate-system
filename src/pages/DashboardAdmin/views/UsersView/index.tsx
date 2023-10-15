@@ -5,9 +5,8 @@ import * as S from './styles'
 import * as G from '@/utils/styles/globals'
 import {
   IoSearchSharp,
-  IoTrashBinOutline,
-  IoCreateOutline,
-  IoCloseCircleOutline
+  IoCloseCircleOutline,
+  IoCheckmarkCircleOutline
 } from 'react-icons/io5'
 
 import { Button, Input, Modal, Popconfirm, theme } from 'antd'
@@ -18,11 +17,13 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import {
   handleAddComission,
   handleAddLinks,
+  handleBlockUser,
   handleDeleteComission,
   handleDeleteLink
 } from '@/firebase/admin'
 import { IComission, ILink } from '@/@types/Admin'
 import { timestampToDate } from '@/utils/functions/convertTimestamp'
+import { IUserData } from '@/@types/Auth'
 
 const UsersView = () => {
   const { token } = theme.useToken()
@@ -130,13 +131,29 @@ export default UsersView
 // =========================================== USER ITEM
 
 interface IUser {
-  affiliate: any
-  showLinksModal: (affiliate: any) => void
-  showComissionModal: (affiliate: any) => void
+  affiliate: IUserData
+  showLinksModal: (affiliate: IUserData) => void
+  showComissionModal: (affiliate: IUserData) => void
 }
 
 const User = ({ affiliate, showLinksModal, showComissionModal }: IUser) => {
   const { token } = theme.useToken()
+
+  const handleBlockAffiliate = async () => {
+    const blockUserResponse = await handleBlockUser({
+      userId: affiliate.userId,
+      userEmail: affiliate.userEmail,
+      userBlocked: true
+    })
+  }
+
+  const handleEnableAffiliate = async () => {
+    const blockUserResponse = await handleBlockUser({
+      userId: affiliate.userId,
+      userEmail: affiliate.userEmail,
+      userBlocked: false
+    })
+  }
 
   return (
     <S.User
@@ -148,16 +165,33 @@ const User = ({ affiliate, showLinksModal, showComissionModal }: IUser) => {
     >
       <p>
         <b>{affiliate.userName}</b> / {affiliate.userEmail}
+        {affiliate.userBlocked && <span>Bloqueado</span>}
       </p>
 
       <span>
         <Button onClick={() => showLinksModal(affiliate)}>Links</Button>
         <Button onClick={() => showComissionModal(affiliate)}>Comissão</Button>
-        <Button
-          icon={
-            <IoTrashBinOutline style={{ fontSize: 16, marginLeft: '7px' }} />
-          }
-        />
+
+        {affiliate.userBlocked ? (
+          <Button
+            onClick={handleEnableAffiliate}
+            icon={
+              <IoCheckmarkCircleOutline
+                style={{ fontSize: 20, marginLeft: '5px' }}
+              />
+            }
+          />
+        ) : (
+          <Button
+            onClick={handleBlockAffiliate}
+            icon={
+              <IoCloseCircleOutline
+                style={{ fontSize: 20, marginLeft: '5px' }}
+              />
+            }
+            danger
+          />
+        )}
       </span>
     </S.User>
   )

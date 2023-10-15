@@ -38,6 +38,26 @@ const handleSigninUser = async ({
   userPassword
 }: ISigninUser): Promise<boolean> => {
   try {
+    const userAccountsRef = firebase.database().ref('userAccounts')
+
+    const userQuery = userAccountsRef
+      .orderByChild('userEmail')
+      .equalTo(userEmail)
+
+    const userQuerySnapshot = await userQuery.get()
+
+    if (userQuerySnapshot.exists()) {
+      const userData: any = Object.values(userQuerySnapshot.val())[0]
+
+      if (userData?.userBlocked) {
+        message.open({
+          type: 'error',
+          content: 'Sua conta está bloqueada. Entre em contato com o suporte.'
+        })
+        return false
+      }
+    }
+
     await firebase.auth().signInWithEmailAndPassword(userEmail, userPassword)
 
     return true
@@ -78,8 +98,6 @@ const handleSignupUser = async ({
   try {
     // ----------------------------------
 
-    console.log('aqui entrou')
-
     const authenticatedUsersRef = firebase.database().ref('authenticatedUsers')
     const userAccountsRef = firebase.database().ref('userAccounts')
 
@@ -106,24 +124,21 @@ const handleSignupUser = async ({
       message.open({
         type: 'warning',
         content:
-          'Essa conta já possuí cadastro, faça login para acessar o sistema'
+          'Essa conta já possui cadastro, faça login para acessar o sistema'
       })
       return false
     }
 
-    console.log('aqui entrou')
-
     const userAuthenticatedData = userAuthenticationQuerySnapshot.val()
     const userId = Object.keys(userAuthenticatedData)[0]
 
-    console.log(userAuthenticatedData, userId)
+    const { userName, userBlocked } = userAuthenticatedData[userId]
 
-    const { userName } = userAuthenticatedData[userId]
-
-    if (!userName) {
+    if (userBlocked) {
       message.open({
-        type: 'error',
-        content: 'Erro ao realizar cadastro'
+        type: 'warning',
+        content:
+          'Sua conta está bloqueada. Entre em contato para obter assistência.'
       })
       return false
     }
@@ -146,7 +161,8 @@ const handleSignupUser = async ({
         userRegisteredAt: Date.now(),
         userAffiliateLinks: [],
         userAffiliateComission: [],
-        userAffiliateWithdraws: []
+        userAffiliateWithdraws: [],
+        userBlocked: false
       }
 
       const userDataResponse = await createUserAccount(userData)
@@ -154,7 +170,7 @@ const handleSignupUser = async ({
       if (!userDataResponse) {
         message.open({
           type: 'error',
-          content: 'Falha ao realizar cadastro, faça novamente o seu cadastro.'
+          content: 'Falha ao realizar o cadastro. Por favor, tente novamente.'
         })
 
         const user = firebase.auth().currentUser
@@ -174,18 +190,20 @@ const handleSignupUser = async ({
 
     message.open({
       type: 'error',
-      content: 'Erro ao realizar cadastro 1'
+      content: 'Erro ao realizar o cadastro'
     })
     return false
   } catch (error: any) {
     const errorCode = error.code
 
-    const traslatedError = handleTranslateFbError(errorCode)
+    const translatedError = handleTranslateFbError(errorCode)
 
     message.open({
       type: 'error',
       content:
-        traslatedError !== null ? traslatedError : 'Erro ao realizar cadastro'
+        translatedError !== null
+          ? translatedError
+          : 'Erro ao realizar o cadastro'
     })
     return false
   }
@@ -198,6 +216,23 @@ const handleSigninAdmin = async ({
   adminPassword
 }: ISigninAdmin): Promise<boolean> => {
   try {
+    const adminAccountsRef = firebase.database().ref('adminAccounts')
+
+    const adminQuery = adminAccountsRef
+      .orderByChild('userEmail')
+      .equalTo(adminEmail)
+      .once('value')
+
+    const adminQuerySnapshot = await adminQuery
+
+    if (!adminQuerySnapshot.exists()) {
+      message.open({
+        type: 'error',
+        content: 'Usuário não é um administrador'
+      })
+      return false
+    }
+
     await firebase.auth().signInWithEmailAndPassword(adminEmail, adminPassword)
 
     return true
@@ -310,65 +345,6 @@ const handleGetAdminData = (
 }
 
 // ==============================================
-
-// ============================================== HANDLE DELETE ACCOUNT
-
-// const handleDeleteAdminAccount = async (adminPassword: string) => {
-//   try {
-//     const user = firebase.auth().currentUser
-
-//     if (!user) {
-//       message.open({
-//         type: 'error',
-//         content: 'Você precisa estar logado para excluir sua conta.'
-//       })
-//       return false
-//     }
-
-//     try {
-//       if (!user.email) {
-//         message.open({
-//           type: 'error',
-//           content:
-//             'Erro na reautenticação. Verifique sua senha e tente novamente.'
-//         })
-//         return false
-//       }
-
-//       const credential = firebase.auth.EmailAuthProvider.credential(
-//         user.email,
-//         adminPassword
-//       )
-//       await user.reauthenticateWithCredential(credential)
-//     } catch (reauthError) {
-//       message.open({
-//         type: 'error',
-//         content:
-//           'Erro na reautenticação. Verifique sua senha e tente novamente.'
-//       })
-//       return false
-//     }
-
-//     await user.delete()
-
-//     const adminsRef = firebase.database().ref('adminAccounts/' + user.uid)
-//     await adminsRef.remove()
-
-//     message.open({
-//       type: 'success',
-//       content: 'Sua conta foi excluída com sucesso.'
-//     })
-
-//     return true
-//   } catch (error) {
-//     console.error('Erro ao excluir a conta: ', error)
-//     message.open({
-//       type: 'error',
-//       content: 'Falha ao excluir a conta. Tente novamente mais tarde.'
-//     })
-//     return false
-//   }
-// }
 
 // ============================================== HANDLE EDIT PASSWORD
 

@@ -22,7 +22,8 @@ const handleCreateAuthenticatedUser = async ({
 
     const userData = {
       userName: userName,
-      userEmail: userEmail
+      userEmail: userEmail,
+      userBlocked: false
     }
 
     await authenticatedUsersRef.push(userData)
@@ -573,6 +574,148 @@ const handleGetAllMediaLinks = (
   return offCallback
 }
 
+// ============================================== HANDLE BLOCK ACCOUNT
+
+interface IBlockUser {
+  userId: string
+  userEmail: string
+  userBlocked: boolean
+}
+
+const handleBlockUser = async ({
+  userId,
+  userEmail,
+  userBlocked
+}: IBlockUser) => {
+  try {
+    const authenticatedUsersRef = firebase.database().ref('authenticatedUsers')
+    const usersRef = firebase.database().ref('userAccounts')
+
+    const authenticatedUserQuery = authenticatedUsersRef
+      .orderByChild('userEmail')
+      .equalTo(userEmail)
+    const authenticatedUserQuerySnapshot = await authenticatedUserQuery.get()
+    const authenticatedUserData = authenticatedUserQuerySnapshot.val()
+
+    const userQuery = usersRef.orderByKey().equalTo(userId)
+    const userQuerySnapshot = await userQuery.get()
+    const userSnapshot = userQuerySnapshot.val()
+
+    if (!userSnapshot || !authenticatedUserData) {
+      message.open({
+        type: 'error',
+        content: 'Usuário não encontrado'
+      })
+      return false
+    }
+
+    const authenticatedUserKey = Object.keys(authenticatedUserData)[0]
+    authenticatedUserData[authenticatedUserKey].userBlocked = userBlocked
+
+    const userKey = Object.keys(userSnapshot)[0]
+    userSnapshot[userKey].userBlocked = userBlocked
+
+    await authenticatedUsersRef
+      .child(authenticatedUserKey)
+      .set(authenticatedUserData[authenticatedUserKey])
+
+    await usersRef.child(userKey).set(userSnapshot[userKey])
+
+    const messageType = userBlocked ? 'bloqueado' : 'liberado'
+
+    message.open({
+      type: 'success',
+      content: `Usuário ${messageType} com sucesso`
+    })
+
+    return true
+  } catch (error) {
+    message.open({
+      type: 'error',
+      content: 'Falha ao atualizar o status de bloqueio do usuário'
+    })
+    return false
+  }
+}
+
+// ============================================= DELETE AUTHENTICATED USER
+
+interface IBlockAuthenticatedUser {
+  userEmail: string
+  userBlocked: boolean
+}
+
+const handleBlockAuthenticatedUser = async ({
+  userEmail,
+  userBlocked
+}: IBlockAuthenticatedUser) => {
+  try {
+    const authenticatedUsersRef = firebase.database().ref('authenticatedUsers')
+    const usersRef = firebase.database().ref('userAccounts')
+
+    const snapshotAuthenticatedUser = await authenticatedUsersRef
+      .orderByChild('userEmail')
+      .equalTo(userEmail)
+      .once('value')
+
+    const snapshotUser = await usersRef
+      .orderByChild('userEmail')
+      .equalTo(userEmail)
+      .once('value')
+
+    const authenticatedUserData = snapshotAuthenticatedUser.val()
+    const userSnapshot = snapshotUser.val()
+
+    if (!authenticatedUserData) {
+      message.open({
+        type: 'error',
+        content: 'Usuário não encontrado'
+      })
+      return false
+    }
+
+    const authenticatedUserKey = Object.keys(authenticatedUserData)[0]
+
+    authenticatedUserData[authenticatedUserKey].userBlocked = userBlocked
+
+    await authenticatedUsersRef
+      .child(authenticatedUserKey)
+      .set(authenticatedUserData[authenticatedUserKey])
+
+    if (!userSnapshot) {
+      const messageType = userBlocked ? 'bloqueado' : 'liberado'
+
+      message.open({
+        type: 'success',
+        content: `Usuário ${messageType} com sucesso`
+      })
+      return false
+    }
+
+    const userKey = Object.keys(userSnapshot)[0]
+
+    userSnapshot[userKey].userBlocked = userBlocked
+
+    await usersRef.child(userKey).set(userSnapshot[userKey])
+
+    const messageType = userBlocked ? 'bloqueado' : 'liberado'
+
+    message.open({
+      type: 'success',
+      content: `Usuário ${messageType} com sucesso`
+    })
+
+    return true
+  } catch (error) {
+    message.open({
+      type: 'error',
+      content: 'Erro ao excluir o acesso de usuário autenticado'
+    })
+
+    return false
+  }
+}
+
 export {
   handleCreateAuthenticatedUser,
   handleAddLinks,
@@ -586,5 +729,7 @@ export {
   handleGetAllUsers,
   handleGetAllAuthenticatedUsers,
   handleGetAllWithdrawRequests,
-  handleUpdateWithdrawStatus
+  handleUpdateWithdrawStatus,
+  handleBlockUser,
+  handleBlockAuthenticatedUser
 }

@@ -4,8 +4,8 @@ import * as S from './styles'
 import * as G from '@/utils/styles/globals'
 import {
   IoSearchSharp,
-  IoTrashBinOutline,
-  IoCreateOutline
+  IoCloseCircleOutline,
+  IoCheckmarkCircleOutline
 } from 'react-icons/io5'
 
 import { Button, Form, Input, Modal, theme } from 'antd'
@@ -13,7 +13,10 @@ import { Button, Form, Input, Modal, theme } from 'antd'
 import { Controller, useForm } from 'react-hook-form'
 
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
-import { handleCreateAuthenticatedUser } from '@/firebase/admin'
+import {
+  handleCreateAuthenticatedUser,
+  handleBlockAuthenticatedUser
+} from '@/firebase/admin'
 
 const AccessView = () => {
   const { token } = theme.useToken()
@@ -104,6 +107,20 @@ interface IUser {
 const User = ({ authenticatedUser }: IUser) => {
   const { token } = theme.useToken()
 
+  const handleBlockUserAccess = async () => {
+    const blockUserResponse = await handleBlockAuthenticatedUser({
+      userEmail: authenticatedUser.userEmail,
+      userBlocked: true
+    })
+  }
+
+  const handleEnableUserAccess = async () => {
+    const blockUserResponse = await handleBlockAuthenticatedUser({
+      userEmail: authenticatedUser.userEmail,
+      userBlocked: false
+    })
+  }
+
   return (
     <S.User
       style={{
@@ -114,14 +131,30 @@ const User = ({ authenticatedUser }: IUser) => {
     >
       <p>
         <b>{authenticatedUser.userName}</b> / {authenticatedUser.userEmail}
+        {authenticatedUser.userBlocked && <span>Bloqueado</span>}
       </p>
 
       <span>
-        <Button
-          icon={
-            <IoTrashBinOutline style={{ fontSize: 16, marginLeft: '7px' }} />
-          }
-        />
+        {authenticatedUser.userBlocked ? (
+          <Button
+            onClick={handleEnableUserAccess}
+            icon={
+              <IoCheckmarkCircleOutline
+                style={{ fontSize: 20, marginLeft: '5px' }}
+              />
+            }
+          />
+        ) : (
+          <Button
+            onClick={handleBlockUserAccess}
+            icon={
+              <IoCloseCircleOutline
+                style={{ fontSize: 20, marginLeft: '5px' }}
+              />
+            }
+            danger
+          />
+        )}
       </span>
     </S.User>
   )

@@ -26,4 +26,5 @@ export interface IUserData {
   userAffiliateLinks?: any
   userAffiliateComission?: any
   userAffiliateWithdraws?: any
+  userBlocked: boolean
 }
