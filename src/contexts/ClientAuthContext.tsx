@@ -110,19 +110,18 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
   // -------------------------------
 
   const userBalance = useMemo(() => {
-    if (!userData?.userAffiliateWithdraws) return 0
+    if (!userData?.userAffiliateWithdraws)
+      return formattedTotal.totalFaturadoAnual
 
-    const totalWithdraws = userData?.userAffiliateWithdraws.reduce(
+    const totalWithdraws = userData?.userAffiliateWithdraws?.reduce(
       (acc, withdraw) => acc + parseFloat(withdraw.withdrawAmount),
       0
     )
 
     const saldo = formattedTotal.totalFaturadoAnual - totalWithdraws
 
-    console.log(saldo)
-
     return saldo
-  }, [userData, formattedTotal.totalFaturadoAnual])
+  }, [userData, formattedTotal])
 
   const ClientAuthContextValues = useMemo(() => {
     return {
