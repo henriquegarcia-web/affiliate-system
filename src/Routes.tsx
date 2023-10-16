@@ -20,15 +20,15 @@ const AppRoutes = () => {
       <Routes>
         {/* =============================================================== */}
 
-        <Route path="/" element={<Maintence />} />
-        <Route path="/*" element={<Maintence />} />
+        {/* <Route path="/" element={<Maintence />} />
+        <Route path="/*" element={<Maintence />} /> */}
 
-        {/* <Route path="/" element={<Navigate to="/auth/entrar" />} />
-        <Route path="/*" element={<Navigate to="/auth/entrar" />} /> */}
+        <Route path="/" element={<Navigate to="/auth/entrar" />} />
+        <Route path="/*" element={<Navigate to="/auth/entrar" />} />
 
         {/* =============================================================== */}
 
-        {/* <Route
+        <Route
           path="/admin/entrar"
           element={
             <PublicAdminRoute isAuthenticated={isAdminLogged}>
@@ -43,11 +43,11 @@ const AppRoutes = () => {
               <DashboardAdminPage />
             </PrivateAdminRoute>
           }
-        /> */}
+        />
 
         {/* =============================================================== */}
 
-        {/* <Route
+        <Route
           path="/auth/entrar"
           element={
             <PublicClientRoute isAuthenticated={isClientLogged}>
@@ -62,7 +62,7 @@ const AppRoutes = () => {
               <DashboardClientPage />
             </PrivateClientRoute>
           }
-        /> */}
+        />
 
         {/* =============================================================== */}
       </Routes>
