@@ -9,6 +9,7 @@ import {
 
 import { useAdminAuth } from './contexts/AdminAuthContext'
 import { useClientAuth } from './contexts/ClientAuthContext'
+import Maintence from './pages/Maintence'
 
 const AppRoutes = () => {
   const { isAdminLogged } = useAdminAuth()
@@ -19,12 +20,15 @@ const AppRoutes = () => {
       <Routes>
         {/* =============================================================== */}
 
-        <Route path="/" element={<Navigate to="/auth/entrar" />} />
-        <Route path="/*" element={<Navigate to="/auth/entrar" />} />
+        <Route path="/" element={<Maintence />} />
+        <Route path="/*" element={<Maintence />} />
+
+        {/* <Route path="/" element={<Navigate to="/auth/entrar" />} />
+        <Route path="/*" element={<Navigate to="/auth/entrar" />} /> */}
 
         {/* =============================================================== */}
 
-        <Route
+        {/* <Route
           path="/admin/entrar"
           element={
             <PublicAdminRoute isAuthenticated={isAdminLogged}>
@@ -39,11 +43,11 @@ const AppRoutes = () => {
               <DashboardAdminPage />
             </PrivateAdminRoute>
           }
-        />
+        /> */}
 
         {/* =============================================================== */}
 
-        <Route
+        {/* <Route
           path="/auth/entrar"
           element={
             <PublicClientRoute isAuthenticated={isClientLogged}>
@@ -51,7 +55,6 @@ const AppRoutes = () => {
             </PublicClientRoute>
           }
         />
-        {/* <Route path="/auth" element={<Navigate to="/auth/entrar" />} /> */}
         <Route
           path="/dashboard"
           element={
@@ -59,7 +62,7 @@ const AppRoutes = () => {
               <DashboardClientPage />
             </PrivateClientRoute>
           }
-        />
+        /> */}
 
         {/* =============================================================== */}
       </Routes>
