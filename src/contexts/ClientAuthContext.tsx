@@ -168,7 +168,7 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [userData, formattedTotal])
 
   const withdrawAvailability = useMemo(() => {
-    if (!userData) return {}
+    if (!userData) return { available: true, daysRemaining: 0 }
     if (!userData?.userAffiliateWithdraws)
       return { available: true, daysRemaining: 0 }
 
