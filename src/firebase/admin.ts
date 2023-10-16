@@ -14,17 +14,26 @@ import {
 
 // ============================================= CREATE AFFILIATE REGISTRATION
 
+interface ICreateAuthenticatedUser {
+  userName: string
+  userEmail: string
+  userAgreement: string
+}
+
 const handleCreateAuthenticatedUser = async ({
   userName,
-  userEmail
-}: IAuthenticatedUser) => {
+  userEmail,
+  userAgreement
+}: ICreateAuthenticatedUser) => {
   try {
     const authenticatedUsersRef = firebase.database().ref('authenticatedUsers')
 
-    const userData = {
+    const userData: IAuthenticatedUser = {
       userName: userName,
       userEmail: userEmail,
-      userBlocked: false
+      userBlocked: false,
+      userRegisteredAt: Date.now(),
+      userAgreement: userAgreement
     }
 
     await authenticatedUsersRef.push(userData)

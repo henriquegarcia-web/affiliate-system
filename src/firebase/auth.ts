@@ -132,7 +132,8 @@ const handleSignupUser = async ({
     const userAuthenticatedData = userAuthenticationQuerySnapshot.val()
     const userId = Object.keys(userAuthenticatedData)[0]
 
-    const { userName, userBlocked } = userAuthenticatedData[userId]
+    const { userName, userAgreement, userBlocked } =
+      userAuthenticatedData[userId]
 
     if (userBlocked) {
       message.open({
@@ -163,7 +164,7 @@ const handleSignupUser = async ({
         userAffiliateComission: [],
         userAffiliateWithdraws: [],
         userBlocked: false,
-        userAgreement: '',
+        userAgreement: userAgreement,
         userUsdtKey: ''
       }
 

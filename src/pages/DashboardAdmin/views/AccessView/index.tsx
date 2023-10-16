@@ -5,10 +5,11 @@ import * as G from '@/utils/styles/globals'
 import {
   IoSearchSharp,
   IoCloseCircleOutline,
-  IoCheckmarkCircleOutline
+  IoCheckmarkCircleOutline,
+  IoChevronDownOutline
 } from 'react-icons/io5'
 
-import { Button, Form, Input, Modal, theme } from 'antd'
+import { Button, Dropdown, Form, Input, Modal, theme } from 'antd'
 
 import { Controller, useForm } from 'react-hook-form'
 
@@ -107,6 +108,8 @@ interface IUser {
 const User = ({ authenticatedUser }: IUser) => {
   const { token } = theme.useToken()
 
+  const { agreementList } = useAdminAuth()
+
   const handleBlockUserAccess = async () => {
     const blockUserResponse = await handleBlockAuthenticatedUser({
       userEmail: authenticatedUser.userEmail,
@@ -121,6 +124,20 @@ const User = ({ authenticatedUser }: IUser) => {
     })
   }
 
+  const formattedAgreements: any[] = useMemo(() => {
+    return (
+      agreementList?.map((item) => ({
+        key: item.agreementId,
+        label: item.agreementLabel
+      })) || []
+    )
+  }, [agreementList])
+
+  const getAgreementLabel = (key: string): string | null => {
+    const item: any = formattedAgreements.find((item) => item.key === key)
+    return item ? item.label : null
+  }
+
   return (
     <S.User
       style={{
@@ -131,7 +148,14 @@ const User = ({ authenticatedUser }: IUser) => {
     >
       <p>
         <b>{authenticatedUser.userName}</b> / {authenticatedUser.userEmail}
-        {authenticatedUser.userBlocked && <span>Bloqueado</span>}
+        {authenticatedUser?.userAgreement && (
+          <span className="agreement">
+            {getAgreementLabel(authenticatedUser?.userAgreement)}
+          </span>
+        )}
+        {authenticatedUser.userBlocked && (
+          <span className="blocked">Bloqueado</span>
+        )}
       </p>
 
       <span>
@@ -165,6 +189,7 @@ const User = ({ authenticatedUser }: IUser) => {
 interface ICreateUserForm {
   userName: string
   userEmail: string
+  userAgreement: string
 }
 
 interface ICreateAffiliateModal {
@@ -176,6 +201,8 @@ const CreateAffiliateModal = ({
   isModalOpen,
   handleModalClose
 }: ICreateAffiliateModal) => {
+  const { agreementList } = useAdminAuth()
+
   const [createUserLoading, setCreateUserLoading] = useState(false)
 
   const { control, handleSubmit, reset, formState } = useForm<ICreateUserForm>()
@@ -188,7 +215,7 @@ const CreateAffiliateModal = ({
     const signupAdminResponse = await handleCreateAuthenticatedUser({
       userName: data.userName,
       userEmail: data.userEmail,
-      userRegisteredAt: Date.now()
+      userAgreement: data.userAgreement
     })
 
     setCreateUserLoading(false)
@@ -197,6 +224,20 @@ const CreateAffiliateModal = ({
       reset()
       handleModalClose()
     }
+  }
+
+  const formattedAgreements: any[] = useMemo(() => {
+    return (
+      agreementList?.map((item) => ({
+        key: item.agreementId,
+        label: item.agreementLabel
+      })) || []
+    )
+  }, [agreementList])
+
+  const getAgreementLabel = (key: string): string | null => {
+    const item: any = formattedAgreements.find((item) => item.key === key)
+    return item ? item.label : null
   }
 
   return (
@@ -229,6 +270,32 @@ const CreateAffiliateModal = ({
             rules={{ required: 'Este campo é obrigatório' }}
             render={({ field }) => (
               <Input {...field} placeholder="Digite o e-mail" />
+            )}
+          />
+        </Form.Item>
+        <Form.Item label="Acordo do afiliado">
+          <Controller
+            name="userAgreement"
+            control={control}
+            rules={{ required: 'Este campo é obrigatório' }}
+            render={({ field }) => (
+              <Dropdown.Button
+                menu={{
+                  items: formattedAgreements,
+                  onClick: (e) => field.onChange(e.key),
+                  style: { width: '100%' }
+                }}
+                icon={
+                  <IoChevronDownOutline
+                    style={{ fontSize: 16, marginBottom: '-4px' }}
+                  />
+                }
+                trigger={['click']}
+              >
+                {field.value
+                  ? getAgreementLabel(field.value.toString())
+                  : 'Selecione um acordo'}
+              </Dropdown.Button>
             )}
           />
         </Form.Item>

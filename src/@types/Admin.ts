@@ -8,6 +8,8 @@ export interface IAuthenticatedUser {
   userName: string
   userEmail: string
   userRegisteredAt?: number
+  userBlocked: boolean
+  userAgreement: string
 }
 
 export interface ILink {
