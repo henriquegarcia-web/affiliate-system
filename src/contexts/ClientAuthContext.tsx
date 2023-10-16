@@ -194,10 +194,6 @@ const ClientAuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [userData])
 
-  useEffect(() => {
-    console.log(withdrawAvailability)
-  }, [withdrawAvailability])
-
   const ClientAuthContextValues = useMemo(() => {
     return {
       userId,

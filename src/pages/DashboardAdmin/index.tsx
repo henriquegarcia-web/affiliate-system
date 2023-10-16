@@ -19,7 +19,7 @@ const DashboardAdmin = () => {
 
   const { token } = theme.useToken()
 
-  const { handleLogout, userData } = useAdminAuth()
+  const { handleLogout, applicationData } = useAdminAuth()
 
   const [isMenuMobileOpen, setIsMenuMobileOpen] = useState(false)
 

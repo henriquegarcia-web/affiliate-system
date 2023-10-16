@@ -7,6 +7,7 @@ import AccessView from '@/pages/DashboardAdmin/views/AccessView'
 import WithdrawView from '@/pages/DashboardAdmin/views/WithdrawView'
 import AgreementsView from '@/pages/DashboardAdmin/views/AgreementsView'
 import AdminMediasView from '@/pages/DashboardAdmin/views/AdminMediasView'
+import SettingsView from '@/pages/DashboardAdmin/views/SettingsView'
 
 import {
   IoExitOutline,
@@ -18,7 +19,8 @@ import {
   IoPersonAddOutline,
   IoPeopleOutline,
   IoFileTrayFullOutline,
-  IoPricetagsOutline
+  IoPricetagsOutline,
+  IoSettingsOutline
 } from 'react-icons/io5'
 
 export interface IMenuData {
@@ -103,6 +105,12 @@ const adminMenuData = [
     menuLabel: 'Acessos',
     menuIcon: <IoPersonAddOutline />,
     menuComponent: <AccessView />
+  },
+  {
+    menuId: 'menu_settings',
+    menuLabel: 'Configurações',
+    menuIcon: <IoSettingsOutline />,
+    menuComponent: <SettingsView />
   }
 ]
 

@@ -698,6 +698,34 @@ const handleGetAllAgreements = (
   return offCallback
 }
 
+const handleGetApplicationData = (callback: (data: any | null) => void) => {
+  const applicationRef = firebase.database().ref('application')
+
+  const listener = (snapshot: any) => {
+    try {
+      if (snapshot && snapshot.exists()) {
+        const applicationData = snapshot.val()
+        callback(applicationData)
+      } else {
+        callback(null)
+      }
+    } catch (error) {
+      message.open({
+        type: 'error',
+        content: 'Falha ao obter os dados da aplicação'
+      })
+    }
+  }
+
+  const offCallback = () => {
+    applicationRef.off('value', listener)
+  }
+
+  applicationRef.on('value', listener)
+
+  return offCallback
+}
+
 interface IUpdateUserAgreement {
   userId: string
   agreementId: string
@@ -875,6 +903,96 @@ const handleBlockAuthenticatedUser = async ({
   }
 }
 
+// ============================================= UPDATE SETTINGS
+
+interface IUpdateColor {
+  appColor: string
+}
+
+const handleUpdateApplicationColor = async ({ appColor }: IUpdateColor) => {
+  try {
+    const mediaLinksRef = firebase.database().ref('application/appColor')
+
+    mediaLinksRef.set(appColor)
+
+    message.open({
+      type: 'success',
+      content: 'Cor da aplicação alterada com sucesso'
+    })
+
+    return true
+  } catch (error) {
+    message.open({
+      type: 'error',
+      content: 'Erro ao alterar cor da aplicação'
+    })
+    return false
+  }
+}
+
+interface IUpdateMaintanceStatus {
+  appMaintanceStatus: boolean
+}
+
+const handleUpdateApplicationMaintanceStatus = async ({
+  appMaintanceStatus
+}: IUpdateMaintanceStatus) => {
+  try {
+    const mediaLinksRef = firebase
+      .database()
+      .ref('application/appMaintanceStatus')
+
+    mediaLinksRef.set(appMaintanceStatus)
+
+    message.open({
+      type: 'success',
+      content: 'Status da aplicação alterada com sucesso'
+    })
+
+    return true
+  } catch (error) {
+    message.open({
+      type: 'error',
+      content: 'Erro ao alterar status da aplicação'
+    })
+    return false
+  }
+}
+
+interface IUpdateApplicationPics {
+  companyLogo: string
+  companyFlaticon: string
+}
+
+const handleUpdateApplicationPics = async ({
+  companyLogo,
+  companyFlaticon
+}: IUpdateApplicationPics) => {
+  try {
+    const mediaLinksRef = firebase.database().ref('application/appPics')
+
+    const applicationPics = {
+      companyLogo,
+      companyFlaticon
+    }
+
+    mediaLinksRef.set(applicationPics)
+
+    message.open({
+      type: 'success',
+      content: 'Imagens da aplicação alterada com sucesso'
+    })
+
+    return true
+  } catch (error) {
+    message.open({
+      type: 'error',
+      content: 'Erro ao alterar imagens da aplicação'
+    })
+    return false
+  }
+}
+
 export {
   handleCreateAuthenticatedUser,
   handleAddLinks,
@@ -894,5 +1012,9 @@ export {
   handleAddAgreement,
   handleDeleteAgreement,
   handleGetAllAgreements,
-  handleUpdateUserAgreement
+  handleUpdateUserAgreement,
+  handleGetApplicationData,
+  handleUpdateApplicationColor,
+  handleUpdateApplicationMaintanceStatus,
+  handleUpdateApplicationPics
 }

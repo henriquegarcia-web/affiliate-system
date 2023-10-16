@@ -19,7 +19,8 @@ import {
   handleGetAllAuthenticatedUsers,
   handleGetAllWithdrawRequests,
   handleGetAllMediaLinks,
-  handleGetAllAgreements
+  handleGetAllAgreements,
+  handleGetApplicationData
 } from '@/firebase/admin'
 
 import { IUserData } from '@/@types/Auth'
@@ -38,6 +39,7 @@ interface AdminAuthContextData {
   withdrawsList: IWithdraw[] | null
   mediasList: IMedia[] | null
   agreementList: IAgreement[] | null
+  applicationData: any | null
   isAdminLogged: boolean
 
   handleLogout: () => void
@@ -62,6 +64,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [withdrawsList, setWithdrawsList] = useState<IWithdraw[] | null>(null)
   const [mediasList, setMediasList] = useState<IMedia[] | null>(null)
   const [agreementList, setAgreementList] = useState<IAgreement[] | null>(null)
+
+  const [applicationData, setApplicationData] = useState<any | null>(null)
 
   const isAdminLogged = useMemo(() => {
     return !!userId
@@ -170,6 +174,18 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
+  useEffect(() => {
+    const unsubscribe = handleGetApplicationData((applicationData) => {
+      setApplicationData(applicationData)
+    })
+
+    if (unsubscribe) {
+      return () => {
+        unsubscribe()
+      }
+    }
+  }, [])
+
   // =================================================================
 
   const AdminAuthContextValues = useMemo(() => {
@@ -182,7 +198,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
       authenticatedUsersList,
       withdrawsList,
       mediasList,
-      agreementList
+      agreementList,
+      applicationData
     }
   }, [
     userId,
@@ -193,7 +210,8 @@ const AdminAuthProvider = ({ children }: { children: React.ReactNode }) => {
     authenticatedUsersList,
     withdrawsList,
     mediasList,
-    agreementList
+    agreementList,
+    applicationData
   ])
 
   return (

@@ -1,19 +1,69 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
+import { theme } from 'antd'
+
 import {
   SignInClientPage,
   SignInAdminPage,
   DashboardAdminPage,
-  DashboardClientPage
+  DashboardClientPage,
+  MaintencePage
 } from './pages'
 
 import { useAdminAuth } from './contexts/AdminAuthContext'
 import { useClientAuth } from './contexts/ClientAuthContext'
-import Maintence from './pages/Maintence'
 
 const AppRoutes = () => {
-  const { isAdminLogged } = useAdminAuth()
+  const { token } = theme.useToken()
+
+  const { isAdminLogged, applicationData } = useAdminAuth()
   const { isClientLogged } = useClientAuth()
+
+  if (!applicationData)
+    return (
+      <div
+        style={{
+          width: '100%',
+          height: '100vh',
+          backgroundColor: token.colorBgElevated
+        }}
+      ></div>
+    )
+
+  if (applicationData?.appMaintanceStatus)
+    return (
+      <BrowserRouter>
+        <Routes>
+          {/* =============================================================== */}
+
+          {/* <Route path="/" element={<Maintence />} />
+        <Route path="/*" element={<Maintence />} /> */}
+
+          <Route path="/" element={<MaintencePage />} />
+          <Route path="/*" element={<MaintencePage />} />
+
+          {/* =============================================================== */}
+
+          <Route
+            path="/admin/entrar"
+            element={
+              <PublicAdminRoute isAuthenticated={isAdminLogged}>
+                <SignInAdminPage />
+              </PublicAdminRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <PrivateAdminRoute isAuthenticated={isAdminLogged}>
+                <DashboardAdminPage />
+              </PrivateAdminRoute>
+            }
+          />
+          {/* =============================================================== */}
+        </Routes>
+      </BrowserRouter>
+    )
 
   return (
     <BrowserRouter>

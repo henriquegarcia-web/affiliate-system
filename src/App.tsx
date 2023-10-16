@@ -1,6 +1,6 @@
 import AppRoutes from './Routes'
 
-import { AdminAuthProvider } from './contexts/AdminAuthContext'
+import { AdminAuthProvider, useAdminAuth } from './contexts/AdminAuthContext'
 import { ClientAuthProvider } from './contexts/ClientAuthContext'
 
 import { ConfigProvider, theme } from 'antd'
@@ -20,12 +20,14 @@ function App() {
 export default App
 
 const AppThemed = () => {
+  const { applicationData } = useAdminAuth()
+
   return (
     <ConfigProvider
       theme={{
         algorithm: theme.darkAlgorithm,
         token: {
-          colorPrimary: '#70dc49'
+          colorPrimary: applicationData?.appColor || 'black'
         }
       }}
     >
