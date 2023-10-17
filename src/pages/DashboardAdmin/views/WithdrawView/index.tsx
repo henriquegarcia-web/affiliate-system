@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import * as S from './styles'
 import * as G from '@/utils/styles/globals'
@@ -94,7 +94,7 @@ const AccessView = () => {
               </S.WithdrawLine>
             </S.WithdrawHeader>
             <S.WithdrawWrapper>
-              {withdrawSearch?.length > 0 ? (
+              {withdrawsList?.length > 0 ? (
                 filteredWithdraws?.map((withdraw: IWithdraw) => (
                   <Withdraw
                     key={withdraw.withdrawId}
