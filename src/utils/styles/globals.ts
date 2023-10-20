@@ -54,7 +54,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #70dc49;
+      background: #011bcd;
     }
   }
 
@@ -71,7 +71,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #70dc49;
+      background: #011bcd;
     }
   }
 
@@ -95,7 +95,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #70dc49;
+      background: #011bcd;
       border-radius: 10px;
     }
   }
@@ -120,7 +120,7 @@ export const Window = styled.main`
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #70dc49;
+    background: #011bcd;
     border-radius: 10px;
   }
 `
@@ -162,7 +162,7 @@ export const ViewContent = styled.div`
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #70dc49;
+    background: #011bcd;
     border-radius: 10px;
   }
 `
@@ -186,7 +186,7 @@ export const ViewContentFull = styled.div`
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #70dc49;
+    background: #011bcd;
     border-radius: 10px;
   }
 `
