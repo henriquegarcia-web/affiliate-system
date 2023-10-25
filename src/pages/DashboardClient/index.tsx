@@ -563,7 +563,7 @@ const WithdrawModal = ({
                 <Input
                   {...field}
                   type="number"
-                  min={0}
+                  min={2500}
                   placeholder="Digite o valor que deseja sacar"
                 />
               </>

@@ -55,7 +55,7 @@ export const DashboardMenuLogo = styled.div`
   height: ${adminViewHeader};
 
   img {
-    height: 60%;
+    width: 70%;
   }
 
   @media screen and (max-width: ${responsiveTablet}) {
