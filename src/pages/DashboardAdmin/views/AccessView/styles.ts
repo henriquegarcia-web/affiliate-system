@@ -83,9 +83,9 @@ export const User = styled.div`
       font-size: 12px;
       line-height: 12px;
 
-      color: rgba(112, 220, 73, 1);
-      background-color: rgba(112, 220, 73, 0.2);
-      border: 1px solid rgba(112, 220, 73, 0.8);
+      color: rgba(21, 102, 174, 1);
+      background-color: rgba(21, 102, 174, 0.2);
+      border: 1px solid rgba(21, 102, 174, 0.8);
     }
 
     span.blocked {

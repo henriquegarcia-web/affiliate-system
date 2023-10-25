@@ -72,10 +72,10 @@ export const Link = styled.div`
   transition: 0.3s;
 
   &:hover {
-    border: 1px solid rgba(112, 220, 73, 0.4) !important;
+    border: 1px solid rgba(21, 102, 174, 0.4) !important;
 
     p {
-      color: rgba(112, 220, 73, 0.8);
+      color: rgba(21, 102, 174, 0.8);
     }
   }
 `

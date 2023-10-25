@@ -146,7 +146,7 @@ export const WithdrawLabel = styled.div<IWithdrawLabel>`
 
   background-color: ${({ type }) =>
     type === 'concluded'
-      ? 'rgba(112, 220, 73, 0.4)'
+      ? 'rgba(21, 102, 174, 0.4)'
       : type === 'pending'
       ? 'rgba(220, 220, 73, 0.4)'
       : 'rgba(220, 73, 73, 0.4)'};
@@ -154,7 +154,7 @@ export const WithdrawLabel = styled.div<IWithdrawLabel>`
   border: 1px solid
     ${({ type }) =>
       type === 'concluded'
-        ? 'rgba(112, 220, 73, 0.8)'
+        ? 'rgba(21, 102, 174, 0.8)'
         : type === 'pending'
         ? 'rgba(220, 220, 73, 0.8)'
         : 'rgba(220, 73, 73, 0.8)'};

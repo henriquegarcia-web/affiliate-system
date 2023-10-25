@@ -58,7 +58,7 @@ export const AnalyticHeader = styled.div`
   }
 
   &:hover {
-    border: 1px solid rgba(112, 220, 73, 0.6) !important;
+    border: 1px solid rgba(21, 102, 174, 0.6) !important;
   }
 `
 

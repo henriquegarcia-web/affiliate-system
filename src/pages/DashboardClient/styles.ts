@@ -86,8 +86,8 @@ export const DashboardMenuUserInfos = styled.div`
   margin-bottom: 5px;
   border-radius: 8px;
 
-  background-color: rgba(112, 220, 73, 0.1);
-  border: 1px solid rgba(112, 220, 73, 0.4);
+  background-color: rgba(21, 102, 174, 0.1);
+  border: 1px solid rgba(21, 102, 174, 0.4);
 
   span {
     display: flex;
@@ -112,12 +112,12 @@ export const DashboardMenuUserInfos = styled.div`
       font-weight: 500;
     }
 
-    background-color: rgba(112, 220, 73, 0.2);
-    border: 1px solid rgba(112, 220, 73, 0.4);
+    background-color: rgba(21, 102, 174, 0.2);
+    border: 1px solid rgba(21, 102, 174, 0.4);
 
     &:hover {
-      background-color: rgba(112, 220, 73, 0.4);
-      border: 1px solid rgba(112, 220, 73, 0.6);
+      background-color: rgba(21, 102, 174, 0.4);
+      border: 1px solid rgba(21, 102, 174, 0.6);
     }
   }
 `
@@ -321,8 +321,8 @@ export const UserMenuBalance = styled.div`
     line-height: 12px;
     font-weight: 500;
 
-    background-color: rgba(112, 220, 73, 0.4);
-    border: 1px solid rgba(112, 220, 73, 0.8);
+    background-color: rgba(21, 102, 174, 0.4);
+    border: 1px solid rgba(21, 102, 174, 0.8);
   }
 
   button {
@@ -336,8 +336,8 @@ export const UserMenuBalance = styled.div`
     line-height: 12px;
     font-weight: 500;
 
-    background-color: rgba(112, 220, 73, 0.4);
-    border: 1px solid rgba(112, 220, 73, 0.8);
+    background-color: rgba(21, 102, 174, 0.4);
+    border: 1px solid rgba(21, 102, 174, 0.8);
   }
 
   @media screen and (max-width: ${responsiveMobile}) {
@@ -387,8 +387,8 @@ export const WithdrawAvailable = styled.div`
   font-size: 14px;
   line-height: 14px;
 
-  background-color: rgba(112, 220, 73, 0.4);
-  border: 1px solid rgba(112, 220, 73, 0.8);
+  background-color: rgba(21, 102, 174, 0.4);
+  border: 1px solid rgba(21, 102, 174, 0.8);
 `
 
 export const WithdrawAvailableAlert = styled.div`
@@ -451,7 +451,7 @@ export const WithdrawHistoric = styled.div`
   transition: 0.3s;
 
   &:hover {
-    border: 1px solid rgba(112, 220, 73, 0.6) !important;
+    border: 1px solid rgba(21, 102, 174, 0.6) !important;
   }
 `
 
@@ -467,7 +467,7 @@ export const WithdrawHistoricLabel = styled.div<IWithdrawLabel>`
 
   background-color: ${({ type }) =>
     type === 'concluded'
-      ? 'rgba(112, 220, 73, 0.4)'
+      ? 'rgba(21, 102, 174, 0.4)'
       : type === 'pending'
       ? 'rgba(220, 220, 73, 0.4)'
       : 'rgba(220, 73, 73, 0.4)'};
@@ -475,7 +475,7 @@ export const WithdrawHistoricLabel = styled.div<IWithdrawLabel>`
   border: 1px solid
     ${({ type }) =>
       type === 'concluded'
-        ? 'rgba(112, 220, 73, 0.8)'
+        ? 'rgba(21, 102, 174, 0.8)'
         : type === 'pending'
         ? 'rgba(220, 220, 73, 0.8)'
         : 'rgba(220, 73, 73, 0.8)'};

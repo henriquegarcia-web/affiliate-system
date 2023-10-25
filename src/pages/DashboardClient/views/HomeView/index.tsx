@@ -144,8 +144,8 @@ const Chart = ({
       {
         label: chartLabel,
         data: chartData,
-        borderColor: '#70dc49',
-        backgroundColor: 'rgba(112, 220, 73, 0.5)',
+        borderColor: '#1566ae',
+        backgroundColor: 'rgba(21, 102, 174, 0.5)',
         borderWidth: 2
       }
     ]
